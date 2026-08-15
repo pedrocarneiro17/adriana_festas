@@ -32,10 +32,27 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
 
+# sqlite local dev database
+/prisma/local/*.db
+/prisma/local/*.db-journal
+
+# gerado automaticamente por scripts/generate-local-schema.js a partir de
+# prisma/schema.prisma — não precisa (nem deve) ser versionado
+/prisma/local/schema.prisma
+
+# skill bundles auto-installed by AI coding tools (not part of the app)
+.agents/
+.windsurf/
+.claude/skills/
+skills-lock.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/app/generated/prisma

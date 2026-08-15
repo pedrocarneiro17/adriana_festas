@@ -1,0 +1,238 @@
+// Schema Prisma - Plataforma de Gestão para Decoradora de Festas
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== MODELOS ====================
+// Este é o schema de PRODUÇÃO (Postgres) e a fonte da verdade do modelo de
+// dados. prisma/local/schema.prisma (SQLite, usado em dev local) é gerado
+// automaticamente a partir deste arquivo por scripts/generate-local-schema.js
+// — não edite prisma/local/schema.prisma diretamente. Os campos de
+// status/papel são String livres (e não enums) porque SQLite não suporta
+// enums nativamente.
+
+model Usuario {
+  id        String   @id @default(cuid())
+  nome      String
+  email     String   @unique
+  senhaHash String   @map("senha_hash")
+  papel     String   @default("admin")
+  ativo     Boolean  @default(true)
+  criadoEm  DateTime @default(now()) @map("criado_em")
+
+  @@map("usuarios")
+}
+
+model Cliente {
+  id           String   @id @default(cuid())
+  nome         String
+  telefone     String?
+  email        String?
+  endereco     String?
+  documento    String?
+  observacoes  String?
+  criadoEm     DateTime @default(now()) @map("criado_em")
+
+  orcamentos Orcamento[]
+  contratos  Contrato[]
+
+  @@map("clientes")
+}
+
+model Produto {
+  id            String   @id @default(cuid())
+  nome          String
+  valorUnitario Decimal  @map("valor_unitario")
+  categoria     String?
+  unidade       String   @default("un")
+  ativo         Boolean  @default(true)
+  criadoEm      DateTime @default(now()) @map("criado_em")
+
+  materiais      ProdutoMaterial[]
+  orcamentoItens OrcamentoItem[]
+
+  @@map("produtos")
+}
+
+// Catálogo central de materiais — evita nomes digitados de forma inconsistente
+// entre produtos, que fariam o checklist de um evento não somar corretamente.
+model Material {
+  id       String  @id @default(cuid())
+  nome     String  @unique
+  unidade  String  @default("un")
+  ativo    Boolean @default(true)
+
+  produtos ProdutoMaterial[]
+
+  @@map("materiais")
+}
+
+model ProdutoMaterial {
+  id                    String  @id @default(cuid())
+  produtoId             String  @map("produto_id")
+  materialId            String  @map("material_id")
+  quantidadeNecessaria  Decimal @map("quantidade_necessaria")
+
+  produto  Produto  @relation(fields: [produtoId], references: [id], onDelete: Cascade)
+  material Material @relation(fields: [materialId], references: [id])
+
+  @@map("produto_materiais")
+}
+
+model Orcamento {
+  id          String          @id @default(cuid())
+  clienteId   String          @map("cliente_id")
+  dataCriacao DateTime        @default(now()) @map("data_criacao")
+  validadeAte DateTime?       @map("validade_ate")
+  status      String          @default("rascunho")
+  desconto    Decimal         @default(0)
+  total       Decimal         @default(0)
+  versao      Int             @default(1)
+  origemId    String?         @map("origem_id") // id do orçamento original, para versões de reajuste
+  observacoes String?
+
+  cliente Cliente         @relation(fields: [clienteId], references: [id])
+  itens   OrcamentoItem[]
+  contrato Contrato?
+
+  @@map("orcamentos")
+}
+
+model OrcamentoItem {
+  id                       String  @id @default(cuid())
+  orcamentoId              String  @map("orcamento_id")
+  produtoId                String  @map("produto_id")
+  quantidade               Decimal
+  valorUnitarioCongelado   Decimal @map("valor_unitario_congelado")
+  subtotal                 Decimal
+
+  orcamento Orcamento @relation(fields: [orcamentoId], references: [id], onDelete: Cascade)
+  produto   Produto   @relation(fields: [produtoId], references: [id])
+
+  @@map("orcamento_itens")
+}
+
+model Contrato {
+  id                    String         @id @default(cuid())
+  orcamentoId           String         @unique @map("orcamento_id")
+  clienteId             String         @map("cliente_id")
+  status                String         @default("pendente")
+  condicoesPagamento    String?        @map("condicoes_pagamento")
+  assinado              Boolean        @default(false)
+  dataAssinatura        DateTime?      @map("data_assinatura")
+  criadoEm              DateTime       @default(now()) @map("criado_em")
+
+  orcamento Orcamento @relation(fields: [orcamentoId], references: [id])
+  cliente   Cliente   @relation(fields: [clienteId], references: [id])
+  evento    Evento?
+  pagamentos Pagamento[]
+
+  @@map("contratos")
+}
+
+model Evento {
+  id        String       @id @default(cuid())
+  contratoId String      @unique @map("contrato_id")
+  nome      String?
+  data      DateTime
+  horario   String?
+  local     String?
+  status    String       @default("agendado")
+
+  contrato          Contrato           @relation(fields: [contratoId], references: [id])
+  checklistMateriais ChecklistMateriais?
+  tarefas           Tarefa[]
+  despesas          Despesa[]
+
+  @@map("eventos")
+}
+
+// Bloqueia um único dia (dataFim null) ou um período (dataFim preenchida, inclusive).
+model DataBloqueada {
+  id      String    @id @default(cuid())
+  data    DateTime
+  dataFim DateTime? @map("data_fim")
+  motivo  String?
+
+  @@map("datas_bloqueadas")
+}
+
+model ChecklistMateriais {
+  id        String @id @default(cuid())
+  eventoId  String @unique @map("evento_id")
+
+  evento Evento                   @relation(fields: [eventoId], references: [id], onDelete: Cascade)
+  itens  ChecklistMaterialItem[]
+
+  @@map("checklists_materiais")
+}
+
+model ChecklistMaterialItem {
+  id                       String  @id @default(cuid())
+  checklistId              String  @map("checklist_id")
+  materialNome             String  @map("material_nome")
+  quantidadeTotalNecessaria Decimal @map("quantidade_total_necessaria")
+  unidade                  String  @default("un")
+  tenho                    Boolean @default(false)
+
+  checklist ChecklistMateriais @relation(fields: [checklistId], references: [id], onDelete: Cascade)
+
+  @@map("checklist_material_itens")
+}
+
+model Tarefa {
+  id       String    @id @default(cuid())
+  titulo   String
+  data     DateTime
+  eventoId String?   @map("evento_id")
+
+  evento Evento?      @relation(fields: [eventoId], references: [id], onDelete: SetNull)
+  itens  TarefaItem[]
+
+  @@map("tarefas")
+}
+
+model TarefaItem {
+  id          String  @id @default(cuid())
+  tarefaId    String  @map("tarefa_id")
+  descricao   String
+  concluido   Boolean @default(false)
+
+  tarefa Tarefa @relation(fields: [tarefaId], references: [id], onDelete: Cascade)
+
+  @@map("tarefa_itens")
+}
+
+// Pagamentos são lançados manualmente conforme recebidos — não há cronograma
+// de parcelas pré-definido. O saldo em aberto é sempre total do contrato menos
+// a soma dos pagamentos registrados.
+model Pagamento {
+  id             String   @id @default(cuid())
+  contratoId     String   @map("contrato_id")
+  valor          Decimal
+  data           DateTime
+  formaPagamento String?  @map("forma_pagamento")
+
+  contrato Contrato @relation(fields: [contratoId], references: [id], onDelete: Cascade)
+
+  @@map("pagamentos")
+}
+
+// Toda despesa é associada a um evento — não há despesas "soltas".
+model Despesa {
+  id        String   @id @default(cuid())
+  descricao String
+  valor     Decimal
+  data      DateTime
+  eventoId  String   @map("evento_id")
+
+  evento Evento @relation(fields: [eventoId], references: [id], onDelete: Cascade)
+
+  @@map("despesas")
+}
