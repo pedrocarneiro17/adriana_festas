@@ -188,7 +188,7 @@ export default function AppShell({
 
       <main
         className={cn(
-          "flex-1 p-4 pt-20 transition-[margin] duration-200 md:pt-8",
+          "min-w-0 flex-1 p-4 pt-20 transition-[margin] duration-200 md:pt-8",
           collapsed ? "md:ml-20" : "md:ml-64"
         )}
       >

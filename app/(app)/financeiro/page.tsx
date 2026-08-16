@@ -5,8 +5,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { formatBRL, formatDate } from "@/lib/utils";
 import RegistrarPagamentoDialog from "./registrar-pagamento-dialog";
-import NovaDespesaDialog from "./nova-despesa-dialog";
-import DespesaRow from "./despesa-row";
 import FinanceiroFiltros from "./financeiro-filtros";
 import type { Prisma } from "@prisma/client";
 
@@ -152,53 +150,6 @@ export default async function FinanceiroPage({
                 <TableRow>
                   <TableCell colSpan={6} className="py-6 text-center text-sand-500">
                     Nenhum evento encontrado com esses filtros.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Despesas</CardTitle>
-            <NovaDespesaDialog
-              eventos={eventos
-                .filter((e) => e.status !== "concluido")
-                .map((e) => ({ id: e.id, label: `${e.contrato.cliente.nome} · ${formatDate(e.data)}` }))}
-            />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Descrição</TableHead>
-                <TableHead>Evento</TableHead>
-                <TableHead>Data</TableHead>
-                <TableHead>Valor</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {despesas.map((d) => (
-                <DespesaRow
-                  key={d.id}
-                  despesa={{
-                    id: d.id,
-                    descricao: d.descricao,
-                    valor: d.valor.toString(),
-                    data: d.data.toISOString(),
-                    eventoLabel: `${d.evento.contrato.cliente.nome} · ${formatDate(d.evento.data)}`,
-                  }}
-                />
-              ))}
-              {despesas.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={5} className="py-6 text-center text-sand-500">
-                    Nenhuma despesa encontrada com esses filtros.
                   </TableCell>
                 </TableRow>
               )}
