@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Caprasimo, Figtree } from "next/font/google";
 import "./globals.css";
 
@@ -16,6 +16,11 @@ const figtree = Figtree({
 export const metadata: Metadata = {
   title: "Adriana Festas - Gestão",
   description: "Plataforma de gestão para decoração de festas",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

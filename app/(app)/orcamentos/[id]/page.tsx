@@ -6,10 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatBRL, formatDate } from "@/lib/utils";
-import { FileDown, Pencil } from "lucide-react";
+import { FileDown } from "lucide-react";
 import OrcamentoStatusActions from "../orcamento-status-actions";
 import AprovarOrcamentoDialog from "../aprovar-orcamento-dialog";
 import DuplicarButton from "../duplicar-button";
+import ReajustarButton from "../reajustar-button";
 
 const statusVariant: Record<string, "default" | "secondary" | "success" | "warning" | "destructive"> = {
   rascunho: "secondary",
@@ -57,11 +58,11 @@ export default async function OrcamentoDetalhePage({ params }: { params: Promise
           </Button>
           <DuplicarButton id={orcamento.id} />
           {(podeEditar || podeReajustar) && (
-            <Button asChild variant="outline" size="sm">
-              <Link href={`/orcamentos/${orcamento.id}/editar`}>
-                <Pencil className="h-4 w-4" /> {podeReajustar ? "Reajustar" : "Editar"}
-              </Link>
-            </Button>
+            <ReajustarButton
+              orcamentoId={orcamento.id}
+              label={podeReajustar ? "Reajustar" : "Editar"}
+              contratoAssinado={podeReajustar && orcamento.contrato?.assinado === true}
+            />
           )}
         </div>
       </div>

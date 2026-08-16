@@ -121,61 +121,57 @@ export default async function EventoDetalhePage({ params }: { params: Promise<{ 
 
       <Card>
         <CardHeader>
-          <CardTitle>Condições de pagamento</CardTitle>
+          <CardTitle>Itens e materiais</CardTitle>
         </CardHeader>
-        <CardContent>
-          <CondicoesPagamentoForm
-            id={evento.contrato.id}
-            condicoesPagamento={evento.contrato.condicoesPagamento ?? ""}
-            readOnly={readOnly}
-          />
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Pagamentos</CardTitle>
-            {!readOnly && saldo > 0 && (
-              <RegistrarPagamentoDialog contratoId={evento.contrato.id} clienteNome={evento.contrato.cliente.nome} saldo={saldo} />
-            )}
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-3 flex flex-wrap gap-4 text-sm">
-            <span>Total: <strong>{formatBRL(total)}</strong></span>
-            <span>Pago: <strong className="text-sage-700">{formatBRL(pago)}</strong></span>
-            <span>Saldo: <strong className={saldo > 0 ? "text-amber-700" : "text-sage-700"}>{formatBRL(saldo)}</strong></span>
-          </div>
+        <CardContent className="flex flex-col gap-5">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Data</TableHead>
-                <TableHead>Forma</TableHead>
-                <TableHead>Valor</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+                <TableHead>Produto</TableHead>
+                <TableHead>Qtd</TableHead>
+                <TableHead>Subtotal</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {evento.contrato.pagamentos.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell>{formatDate(p.data)}</TableCell>
-                  <TableCell>{p.formaPagamento || "-"}</TableCell>
-                  <TableCell>{formatBRL(p.valor.toString())}</TableCell>
-                  <TableCell className="text-right">{!readOnly && <ExcluirPagamentoButton id={p.id} />}</TableCell>
+              {evento.contrato.orcamento.itens.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell>{item.produto.nome}</TableCell>
+                  <TableCell>{item.quantidade.toString()}</TableCell>
+                  <TableCell>{formatBRL(item.subtotal.toString())}</TableCell>
                 </TableRow>
               ))}
-              {evento.contrato.pagamentos.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={4} className="py-6 text-center text-sand-500">
-                    Nenhum pagamento registrado ainda.
-                  </TableCell>
-                </TableRow>
-              )}
             </TableBody>
           </Table>
+
+          <div>
+            <p className="mb-2 text-sm font-medium text-sand-700">Checklist de materiais</p>
+            {evento.checklistMateriais && evento.checklistMateriais.itens.length > 0 ? (
+              <ChecklistMateriaisView
+                itens={evento.checklistMateriais.itens.map((i) => ({
+                  ...i,
+                  quantidadeTotalNecessaria: i.quantidadeTotalNecessaria.toString(),
+                }))}
+                readOnly={readOnly}
+              />
+            ) : (
+              <p className="text-sm text-sand-500">
+                Nenhum material necessário identificado (os produtos deste orçamento não têm materiais cadastrados).
+              </p>
+            )}
+          </div>
         </CardContent>
       </Card>
+
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Tarefas do evento</h2>
+        {!readOnly && <NovaTarefaDialog eventoId={evento.id} />}
+      </div>
+      <div className="flex flex-col gap-3">
+        {evento.tarefas.map((t) => (
+          <TarefaCard key={t.id} tarefa={{ ...t, data: t.data.toISOString() }} readOnly={readOnly} />
+        ))}
+        {evento.tarefas.length === 0 && <p className="text-sm text-sand-500">Nenhuma tarefa vinculada.</p>}
+      </div>
 
       <Card>
         <CardHeader>
@@ -229,57 +225,57 @@ export default async function EventoDetalhePage({ params }: { params: Promise<{ 
 
       <Card>
         <CardHeader>
-          <CardTitle>Checklist de materiais</CardTitle>
+          <CardTitle>Condições de pagamento</CardTitle>
         </CardHeader>
         <CardContent>
-          {evento.checklistMateriais && evento.checklistMateriais.itens.length > 0 ? (
-            <ChecklistMateriaisView
-              itens={evento.checklistMateriais.itens.map((i) => ({
-                ...i,
-                quantidadeTotalNecessaria: i.quantidadeTotalNecessaria.toString(),
-              }))}
-              readOnly={readOnly}
-            />
-          ) : (
-            <p className="text-sm text-sand-500">
-              Nenhum material necessário identificado (os produtos deste orçamento não têm materiais cadastrados).
-            </p>
-          )}
+          <CondicoesPagamentoForm
+            id={evento.contrato.id}
+            condicoesPagamento={evento.contrato.condicoesPagamento ?? ""}
+            readOnly={readOnly}
+          />
         </CardContent>
       </Card>
 
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Tarefas do evento</h2>
-        {!readOnly && <NovaTarefaDialog eventoId={evento.id} />}
-      </div>
-      <div className="flex flex-col gap-3">
-        {evento.tarefas.map((t) => (
-          <TarefaCard key={t.id} tarefa={{ ...t, data: t.data.toISOString() }} readOnly={readOnly} />
-        ))}
-        {evento.tarefas.length === 0 && <p className="text-sm text-sand-500">Nenhuma tarefa vinculada.</p>}
-      </div>
-
       <Card>
         <CardHeader>
-          <CardTitle>Itens do orçamento</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Pagamentos</CardTitle>
+            {!readOnly && saldo > 0 && (
+              <RegistrarPagamentoDialog contratoId={evento.contrato.id} clienteNome={evento.contrato.cliente.nome} saldo={saldo} />
+            )}
+          </div>
         </CardHeader>
         <CardContent>
+          <div className="mb-3 flex flex-wrap gap-4 text-sm">
+            <span>Total: <strong>{formatBRL(total)}</strong></span>
+            <span>Pago: <strong className="text-sage-700">{formatBRL(pago)}</strong></span>
+            <span>Saldo: <strong className={saldo > 0 ? "text-amber-700" : "text-sage-700"}>{formatBRL(saldo)}</strong></span>
+          </div>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Produto</TableHead>
-                <TableHead>Qtd</TableHead>
-                <TableHead>Subtotal</TableHead>
+                <TableHead>Data</TableHead>
+                <TableHead>Forma</TableHead>
+                <TableHead>Valor</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {evento.contrato.orcamento.itens.map((item) => (
-                <TableRow key={item.id}>
-                  <TableCell>{item.produto.nome}</TableCell>
-                  <TableCell>{item.quantidade.toString()}</TableCell>
-                  <TableCell>{formatBRL(item.subtotal.toString())}</TableCell>
+              {evento.contrato.pagamentos.map((p) => (
+                <TableRow key={p.id}>
+                  <TableCell>{formatDate(p.data)}</TableCell>
+                  <TableCell>{p.formaPagamento || "-"}</TableCell>
+                  <TableCell>{formatBRL(p.valor.toString())}</TableCell>
+                  <TableCell className="text-right">{!readOnly && <ExcluirPagamentoButton id={p.id} />}</TableCell>
                 </TableRow>
               ))}
+              {evento.contrato.pagamentos.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={4} className="py-6 text-center text-sand-500">
+                    Nenhum pagamento registrado ainda.
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </CardContent>

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatBRL, formatDate, startOfToday, addDays } from "@/lib/utils";
-import { AlertTriangle, CalendarClock, ListTodo, Wallet, Ban } from "lucide-react";
+import { AlertTriangle, CalendarClock, ListTodo, Ban } from "lucide-react";
 
 export default async function DashboardPage() {
   const hoje = startOfToday();
@@ -11,14 +11,10 @@ export default async function DashboardPage() {
   const tarefasDataInicio = addDays(hoje, -6);
   const tarefasDataFim = addDays(hoje, 2); // exclusive: cobre até amanhã
 
-  const [contratos, eventosProximos, tarefasSoltas, datasBloqueadasProximas] = await Promise.all([
-    prisma.contrato.findMany({
-      where: { status: { not: "cancelado" } },
-      include: { cliente: true, orcamento: true, evento: true, pagamentos: true },
-    }),
+  const [eventosProximos, tarefasSoltas, datasBloqueadasProximas] = await Promise.all([
     prisma.evento.findMany({
-      where: { data: { gte: hoje, lte: em30dias }, status: { not: "cancelado" } },
-      include: { contrato: { include: { cliente: true } } },
+      where: { data: { gte: hoje }, status: { not: "cancelado" } },
+      include: { contrato: { include: { cliente: true, orcamento: true, pagamentos: true } } },
       orderBy: { data: "asc" },
     }),
     prisma.tarefa.findMany({
@@ -39,14 +35,11 @@ export default async function DashboardPage() {
     .map((t) => ({ ...t, pendentes: t.itens.filter((i) => !i.concluido) }))
     .filter((t) => t.pendentes.length > 0);
 
-  const comSaldoPendente = contratos
-    .map((c) => {
-      const total = Number(c.orcamento.total);
-      const pago = c.pagamentos.reduce((acc, p) => acc + Number(p.valor), 0);
-      return { ...c, saldo: Math.max(0, total - pago) };
-    })
-    .filter((c) => c.saldo > 0)
-    .sort((a, b) => (a.evento && b.evento ? a.evento.data.getTime() - b.evento.data.getTime() : 0));
+  const eventosComSaldo = eventosProximos.map((e) => {
+    const total = Number(e.contrato.orcamento.total);
+    const pago = e.contrato.pagamentos.reduce((acc, p) => acc + Number(p.valor), 0);
+    return { ...e, saldo: Math.max(0, total - pago) };
+  });
 
   return (
     <div className="flex flex-col gap-6">
@@ -94,46 +87,26 @@ export default async function DashboardPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Wallet className="h-4 w-4 text-brand-600" strokeWidth={2.75} /> Eventos com saldo em aberto
+            <CalendarClock className="h-4 w-4 text-brand-600" strokeWidth={2.75} /> Eventos se aproximando
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-2">
-          {comSaldoPendente
-            .filter((c) => c.evento)
-            .map((c) => (
-              <Link
-                key={c.id}
-                href={`/eventos/${c.evento!.id}`}
-                className="flex items-center justify-between rounded-full border border-amber-200 bg-amber-50 px-4 py-2 text-sm hover:bg-amber-100"
-              >
-                <span>{c.cliente.nome} · evento em {formatDate(c.evento!.data)}</span>
-                <Badge variant="warning">{formatBRL(c.saldo)}</Badge>
-              </Link>
-            ))}
-          {comSaldoPendente.length === 0 && <p className="text-sm text-sand-500">Todos os eventos estão quitados.</p>}
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <CalendarClock className="h-4 w-4 text-brand-600" strokeWidth={2.75} /> Eventos se aproximando (30 dias)
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-2">
-          {eventosProximos.map((e) => (
+          {eventosComSaldo.map((e) => (
             <Link
               key={e.id}
               href={`/eventos/${e.id}`}
-              className="flex items-center justify-between rounded-full border border-[var(--color-divider)] px-4 py-2 text-sm hover:bg-sand-100"
+              className="flex items-center justify-between gap-3 rounded-full border border-[var(--color-divider)] px-4 py-2 text-sm hover:bg-sand-100"
             >
               <span>{e.contrato.cliente.nome}</span>
-              <span className="flex items-center gap-2 text-sand-600">
-                {formatDate(e.data)} {e.horario && `· ${e.horario}`}
+              <span className="flex items-center gap-3 text-sand-600">
+                <span>{formatDate(e.data)} {e.horario && `· ${e.horario}`}</span>
+                <Badge variant={e.saldo > 0 ? "warning" : "success"} className="shrink-0">
+                  {e.saldo > 0 ? formatBRL(e.saldo) : "Quitado"}
+                </Badge>
               </span>
             </Link>
           ))}
-          {eventosProximos.length === 0 && <p className="text-sm text-sand-500">Nenhum evento nos próximos 30 dias.</p>}
+          {eventosComSaldo.length === 0 && <p className="text-sm text-sand-500">Nenhum evento agendado.</p>}
         </CardContent>
       </Card>
 
