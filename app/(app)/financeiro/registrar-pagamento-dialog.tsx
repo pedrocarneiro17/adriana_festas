@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
@@ -26,14 +27,14 @@ export default function RegistrarPagamentoDialog({
 }) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const [valor, setValor] = useState(saldo > 0 ? saldo.toFixed(2) : "");
+  const [valor, setValor] = useState(saldo > 0 ? saldo : 0);
   const [data, setData] = useState(toDateInputValue(new Date()));
   const [formaPagamento, setFormaPagamento] = useState("Pix");
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     startTransition(async () => {
-      await registrarPagamento(contratoId, { valor: Number(valor), data, formaPagamento });
+      await registrarPagamento(contratoId, { valor, data, formaPagamento });
       setOpen(false);
     });
   }
@@ -52,8 +53,8 @@ export default function RegistrarPagamentoDialog({
         </p>
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <div className="flex flex-col gap-1.5">
-            <Label>Valor recebido (R$)</Label>
-            <Input type="number" step="0.01" min="0.01" value={valor} onChange={(e) => setValor(e.target.value)} required />
+            <Label>Valor recebido</Label>
+            <CurrencyInput value={valor} onValueChange={setValor} required />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label>Data do pagamento</Label>

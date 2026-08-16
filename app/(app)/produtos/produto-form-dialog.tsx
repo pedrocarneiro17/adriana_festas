@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
@@ -39,7 +40,7 @@ export default function ProdutoFormDialog({
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [nome, setNome] = useState(produto?.nome ?? "");
-  const [valorUnitario, setValorUnitario] = useState(produto?.valorUnitario ?? "");
+  const [valorUnitario, setValorUnitario] = useState(Number(produto?.valorUnitario ?? 0));
   const [categoria, setCategoria] = useState(produto?.categoria ?? "");
   const [unidade, setUnidade] = useState(produto?.unidade ?? "un");
   const [materiais, setMateriais] = useState<ProdutoMaterialInput[]>(
@@ -67,7 +68,7 @@ export default function ProdutoFormDialog({
     e.preventDefault();
     const payload = {
       nome,
-      valorUnitario: Number(valorUnitario),
+      valorUnitario,
       categoria,
       unidade,
       materiais: materiais.filter((m) => m.materialId),
@@ -78,7 +79,7 @@ export default function ProdutoFormDialog({
       } else {
         await criarProduto(payload);
         setNome("");
-        setValorUnitario("");
+        setValorUnitario(0);
         setCategoria("");
         setUnidade("un");
         setMateriais([]);
@@ -111,15 +112,8 @@ export default function ProdutoFormDialog({
               <Input value={nome} onChange={(e) => setNome(e.target.value)} required />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label>Valor unitário (R$)</Label>
-              <Input
-                type="number"
-                step="0.01"
-                min="0"
-                value={valorUnitario}
-                onChange={(e) => setValorUnitario(e.target.value)}
-                required
-              />
+              <Label>Valor unitário</Label>
+              <CurrencyInput value={valorUnitario} onValueChange={setValorUnitario} required />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Unidade</Label>

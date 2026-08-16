@@ -163,7 +163,7 @@ export async function reajustarOrcamento(orcamentoOrigemId: string, data: Orcame
 
 export async function mudarStatusOrcamento(
   id: string,
-  status: "enviado" | "recusado" | "expirado"
+  status: "enviado" | "recusado"
 ) {
   await prisma.orcamento.update({ where: { id }, data: { status } });
   revalidatePath(`/orcamentos/${id}`);

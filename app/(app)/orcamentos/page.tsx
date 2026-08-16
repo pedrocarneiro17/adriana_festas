@@ -11,7 +11,6 @@ const statusVariant: Record<string, "default" | "secondary" | "success" | "warni
   enviado: "default",
   aprovado: "success",
   recusado: "destructive",
-  expirado: "secondary",
   pendente_reajuste: "warning",
 };
 
@@ -20,7 +19,6 @@ const statusLabel: Record<string, string> = {
   enviado: "Enviado",
   aprovado: "Aprovado",
   recusado: "Recusado",
-  expirado: "Expirado",
   pendente_reajuste: "Pendente reajuste",
 };
 

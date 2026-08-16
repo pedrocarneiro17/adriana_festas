@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Label } from "@/components/ui/label";
 import {
   Dialog,
@@ -20,15 +21,15 @@ export default function NovaDespesaEventoDialog({ eventoId }: { eventoId: string
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [descricao, setDescricao] = useState("");
-  const [valor, setValor] = useState("");
+  const [valor, setValor] = useState(0);
   const [data, setData] = useState(toDateInputValue(new Date()));
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     startTransition(async () => {
-      await criarDespesa({ descricao, valor: Number(valor), data, eventoId });
+      await criarDespesa({ descricao, valor, data, eventoId });
       setDescricao("");
-      setValor("");
+      setValor(0);
       setOpen(false);
     });
   }
@@ -51,8 +52,8 @@ export default function NovaDespesaEventoDialog({ eventoId }: { eventoId: string
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <Label>Valor (R$)</Label>
-              <Input type="number" step="0.01" min="0" value={valor} onChange={(e) => setValor(e.target.value)} required />
+              <Label>Valor</Label>
+              <CurrencyInput value={valor} onValueChange={setValor} required />
             </div>
             <div className="flex flex-col gap-1.5">
               <Label>Data</Label>

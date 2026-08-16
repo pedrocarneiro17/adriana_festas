@@ -3,6 +3,7 @@
 import { useMemo, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -34,7 +35,7 @@ export default function OrcamentoForm({ clientes, produtos, orcamentoId, initial
   const [clienteNovoAtivo, setClienteNovoAtivo] = useState(false);
   const [clienteNovo, setClienteNovo] = useState({ nome: "", telefone: "", email: "" });
   const [validadeAte, setValidadeAte] = useState(initial?.validadeAte?.slice(0, 10) ?? "");
-  const [desconto, setDesconto] = useState(initial?.desconto ?? "0");
+  const [desconto, setDesconto] = useState(Number(initial?.desconto ?? 0));
   const [observacoes, setObservacoes] = useState(initial?.observacoes ?? "");
   const [itens, setItens] = useState(
     initial?.itens.map((i) => ({ produtoId: i.produtoId, quantidade: i.quantidade })) ?? [
@@ -48,7 +49,7 @@ export default function OrcamentoForm({ clientes, produtos, orcamentoId, initial
       if (!produto) return acc;
       return acc + Number(produto.valorUnitario) * Number(item.quantidade || 0);
     }, 0);
-    return Math.max(0, bruto - Number(desconto || 0));
+    return Math.max(0, bruto - desconto);
   }, [itens, produtos, desconto]);
 
   function addItem() {
@@ -82,7 +83,7 @@ export default function OrcamentoForm({ clientes, produtos, orcamentoId, initial
       clienteId: clienteNovoAtivo ? undefined : clienteId,
       clienteNovo: clienteNovoAtivo ? clienteNovo : undefined,
       validadeAte: validadeAte || undefined,
-      desconto: Number(desconto || 0),
+      desconto,
       observacoes,
       itens: itens
         .filter((i) => i.produtoId && Number(i.quantidade) > 0)
@@ -217,8 +218,8 @@ export default function OrcamentoForm({ clientes, produtos, orcamentoId, initial
             <Input type="date" value={validadeAte} onChange={(e) => setValidadeAte(e.target.value)} />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label>Desconto (R$)</Label>
-            <Input type="number" step="0.01" min="0" value={desconto} onChange={(e) => setDesconto(e.target.value)} />
+            <Label>Desconto</Label>
+            <CurrencyInput value={desconto} onValueChange={setDesconto} />
           </div>
           <div className="col-span-2 flex flex-col gap-1.5">
             <Label>Observações</Label>

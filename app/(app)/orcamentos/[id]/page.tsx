@@ -17,7 +17,6 @@ const statusVariant: Record<string, "default" | "secondary" | "success" | "warni
   enviado: "default",
   aprovado: "success",
   recusado: "destructive",
-  expirado: "secondary",
   pendente_reajuste: "warning",
 };
 
@@ -34,7 +33,7 @@ export default async function OrcamentoDetalhePage({ params }: { params: Promise
 
   if (!orcamento) notFound();
 
-  const podeEditar = ["rascunho", "enviado", "recusado", "expirado", "pendente_reajuste"].includes(
+  const podeEditar = ["rascunho", "enviado", "recusado", "pendente_reajuste"].includes(
     orcamento.status
   );
   const podeReajustar = orcamento.status === "aprovado";

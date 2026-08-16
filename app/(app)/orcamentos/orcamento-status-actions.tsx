@@ -7,7 +7,7 @@ import { mudarStatusOrcamento } from "@/lib/actions/orcamentos";
 export default function OrcamentoStatusActions({ id, status }: { id: string; status: string }) {
   const [isPending, startTransition] = useTransition();
 
-  function mudar(novo: "enviado" | "recusado" | "expirado") {
+  function mudar(novo: "enviado" | "recusado") {
     startTransition(() => mudarStatusOrcamento(id, novo));
   }
 
@@ -21,11 +21,6 @@ export default function OrcamentoStatusActions({ id, status }: { id: string; sta
       {status !== "recusado" && (
         <Button variant="outline" disabled={isPending} onClick={() => mudar("recusado")}>
           Marcar como recusado
-        </Button>
-      )}
-      {status !== "expirado" && (
-        <Button variant="outline" disabled={isPending} onClick={() => mudar("expirado")}>
-          Marcar como expirado
         </Button>
       )}
     </div>
