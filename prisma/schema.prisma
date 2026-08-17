@@ -126,6 +126,11 @@ model Contrato {
   condicoesPagamento    String?        @map("condicoes_pagamento")
   assinado              Boolean        @default(false)
   dataAssinatura        DateTime?      @map("data_assinatura")
+  // Preenchido só quando o evento é cancelado com multa contratual — o valor
+  // original combinado continua em orcamento.total, sem ser sobrescrito.
+  // Onde o valor a cobrar é exibido/calculado, usa-se valorMulta quando
+  // presente, senão orcamento.total.
+  valorMulta            Decimal?       @map("valor_multa")
   criadoEm              DateTime       @default(now()) @map("criado_em")
 
   orcamento Orcamento @relation(fields: [orcamentoId], references: [id])

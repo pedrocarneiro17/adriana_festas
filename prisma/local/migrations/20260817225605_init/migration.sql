@@ -83,6 +83,7 @@ CREATE TABLE "contratos" (
     "condicoes_pagamento" TEXT,
     "assinado" BOOLEAN NOT NULL DEFAULT false,
     "data_assinatura" DATETIME,
+    "valor_multa" DECIMAL,
     "criado_em" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "contratos_orcamento_id_fkey" FOREIGN KEY ("orcamento_id") REFERENCES "orcamentos" ("id") ON DELETE RESTRICT ON UPDATE CASCADE,
     CONSTRAINT "contratos_cliente_id_fkey" FOREIGN KEY ("cliente_id") REFERENCES "clientes" ("id") ON DELETE RESTRICT ON UPDATE CASCADE

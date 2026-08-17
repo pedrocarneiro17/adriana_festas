@@ -23,27 +23,28 @@ export async function atualizarCondicoesPagamento(id: string, condicoesPagamento
   await revalidateEventoDoContrato(id);
 }
 
-// Ao cancelar, é possível informar uma multa contratual: o total do
-// orçamento passa a valer só esse valor (em vez do valor cheio do contrato),
-// então saldo, "Registrar pagamento" e margem do evento já refletem a multa
-// sem precisar de nenhuma edição manual depois.
+// Ao cancelar, é possível informar uma multa contratual. O valor original
+// combinado (orcamento.total) nunca é sobrescrito — a multa fica guardada à
+// parte em contrato.valorMulta, e é esse valor que passa a valer pra
+// saldo/pagamento/margem sempre que estiver preenchido.
 export async function cancelarContrato(id: string, multa?: number, motivo?: string) {
   await prisma.$transaction(async (tx) => {
-    const contrato = await tx.contrato.update({ where: { id }, data: { status: "cancelado" } });
+    await tx.contrato.update({
+      where: { id },
+      data: { status: "cancelado", valorMulta: typeof multa === "number" ? multa : undefined },
+    });
     const evento = await tx.evento.findUnique({ where: { contratoId: id } });
     if (evento) {
       await tx.evento.update({ where: { id: evento.id }, data: { status: "cancelado" } });
     }
 
     if (typeof multa === "number") {
+      const contrato = await tx.contrato.findUniqueOrThrow({ where: { id } });
       const orcamento = await tx.orcamento.findUniqueOrThrow({ where: { id: contrato.orcamentoId } });
-      const nota = `Evento cancelado — multa contratual de ${formatBRL(multa)} aplicada.${motivo ? ` Motivo: ${motivo}.` : ""}`;
+      const nota = `Evento cancelado — multa contratual de ${formatBRL(multa)} aplicada (valor original do contrato: ${formatBRL(orcamento.total.toString())}).${motivo ? ` Motivo: ${motivo}.` : ""}`;
       await tx.orcamento.update({
         where: { id: orcamento.id },
-        data: {
-          total: multa,
-          observacoes: [orcamento.observacoes, nota].filter(Boolean).join(" "),
-        },
+        data: { observacoes: [orcamento.observacoes, nota].filter(Boolean).join(" ") },
       });
     }
   });

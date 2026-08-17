@@ -48,7 +48,9 @@ export default async function EventoDetalhePage({ params }: { params: Promise<{ 
   if (!evento) notFound();
 
   const readOnly = evento.status === "concluido";
-  const total = Number(evento.contrato.orcamento.total);
+  const valorOriginal = Number(evento.contrato.orcamento.total);
+  const valorMulta = evento.contrato.valorMulta !== null ? Number(evento.contrato.valorMulta) : null;
+  const total = valorMulta ?? valorOriginal;
   const pago = evento.contrato.pagamentos.reduce((acc, p) => acc + Number(p.valor), 0);
   const saldo = Math.max(0, total - pago);
   const totalDespesas = evento.despesas.reduce((acc, d) => acc + Number(d.valor), 0);
@@ -195,6 +197,11 @@ export default async function EventoDetalhePage({ params }: { params: Promise<{ 
           </div>
         </CardHeader>
         <CardContent>
+          {valorMulta !== null && (
+            <div className="mb-3 rounded-full border border-red-200 bg-red-50 px-4 py-2 text-sm text-red-800">
+              Evento cancelado com multa contratual. Valor original combinado: <strong>{formatBRL(valorOriginal)}</strong> · Multa aplicada: <strong>{formatBRL(valorMulta)}</strong>
+            </div>
+          )}
           <div className="mb-3 flex flex-wrap gap-4 text-sm">
             <span>Total: <strong>{formatBRL(total)}</strong></span>
             <span>Pago: <strong className="text-sage-700">{formatBRL(pago)}</strong></span>

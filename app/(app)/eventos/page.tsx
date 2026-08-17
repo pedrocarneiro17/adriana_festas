@@ -62,7 +62,7 @@ export default async function EventosPage({
           </TableHeader>
           <TableBody>
             {eventos.map((e) => {
-              const total = Number(e.contrato.orcamento.total);
+              const total = Number(e.contrato.valorMulta ?? e.contrato.orcamento.total);
               const pago = e.contrato.pagamentos.reduce((acc, p) => acc + Number(p.valor), 0);
               const saldo = Math.max(0, total - pago);
               return (

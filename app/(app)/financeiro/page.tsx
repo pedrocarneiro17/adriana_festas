@@ -47,7 +47,7 @@ export default async function FinanceiroPage({
   ]);
 
   const eventosComFinanceiro = eventos.map((e) => {
-    const total = Number(e.contrato.orcamento.total);
+    const total = Number(e.contrato.valorMulta ?? e.contrato.orcamento.total);
     const pago = e.contrato.pagamentos.reduce((acc, p) => acc + Number(p.valor), 0);
     const saldo = Math.max(0, total - pago);
     const despesasEvento = e.despesas.reduce((acc, d) => acc + Number(d.valor), 0);

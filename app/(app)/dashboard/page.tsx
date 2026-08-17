@@ -36,7 +36,7 @@ export default async function DashboardPage() {
     .filter((t) => t.pendentes.length > 0);
 
   const eventosComSaldo = eventosProximos.map((e) => {
-    const total = Number(e.contrato.orcamento.total);
+    const total = Number(e.contrato.valorMulta ?? e.contrato.orcamento.total);
     const pago = e.contrato.pagamentos.reduce((acc, p) => acc + Number(p.valor), 0);
     return { ...e, saldo: Math.max(0, total - pago) };
   });
