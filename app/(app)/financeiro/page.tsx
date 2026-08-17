@@ -12,9 +12,9 @@ import type { Prisma } from "@prisma/client";
 export default async function FinanceiroPage({
   searchParams,
 }: {
-  searchParams: Promise<{ cliente?: string; de?: string; ate?: string; lancamentos?: string }>;
+  searchParams: Promise<{ cliente?: string; status?: string; de?: string; ate?: string; lancamentos?: string }>;
 }) {
-  const { cliente, de, ate, lancamentos } = await searchParams;
+  const { cliente, status, de, ate, lancamentos } = await searchParams;
   const somenteAberto = lancamentos !== "todos";
 
   const periodoEvento: Prisma.DateTimeFilter = {};
@@ -22,11 +22,15 @@ export default async function FinanceiroPage({
   if (ate) periodoEvento.lte = new Date(`${ate}T23:59:59.999Z`);
   const temPeriodo = Boolean(de || ate);
 
+  // Sem um status explícito, o padrão exclui contratos cancelados. Ao
+  // escolher um status (inclusive "cancelado"), o filtro passa a valer
+  // diretamente sobre o status do evento.
   const eventoWhere: Prisma.EventoWhereInput = {
     contrato: {
-      status: { not: "cancelado" },
+      ...(status ? {} : { status: { not: "cancelado" } }),
       ...(cliente ? { clienteId: cliente } : {}),
     },
+    ...(status ? { status } : {}),
     ...(temPeriodo ? { data: periodoEvento } : {}),
   };
 

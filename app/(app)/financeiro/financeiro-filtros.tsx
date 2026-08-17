@@ -19,10 +19,11 @@ export default function FinanceiroFiltros({ clientes }: { clientes: { id: string
   }
 
   const clienteId = searchParams.get("cliente") ?? "";
+  const status = searchParams.get("status") ?? "";
   const de = searchParams.get("de") ?? "";
   const ate = searchParams.get("ate") ?? "";
   const lancamentos = searchParams.get("lancamentos") === "todos" ? "todos" : "aberto";
-  const temFiltros = clienteId || de || ate || lancamentos === "todos";
+  const temFiltros = clienteId || status || de || ate || lancamentos === "todos";
 
   return (
     <div className="flex flex-wrap items-end gap-3 rounded-[28px] bg-[var(--color-surface)] p-4">
@@ -52,6 +53,22 @@ export default function FinanceiroFiltros({ clientes }: { clientes: { id: string
                 {c.nome}
               </SelectItem>
             ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <Label className="text-xs">Status do evento</Label>
+        <Select value={status || "todos"} onValueChange={(v) => setParam("status", v === "todos" ? "" : v)}>
+          <SelectTrigger className="w-40">
+            <SelectValue placeholder="Todos" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="todos">Todos</SelectItem>
+            <SelectItem value="agendado">Agendado</SelectItem>
+            <SelectItem value="em_execucao">Em execução</SelectItem>
+            <SelectItem value="concluido">Concluído</SelectItem>
+            <SelectItem value="cancelado">Cancelado</SelectItem>
           </SelectContent>
         </Select>
       </div>
