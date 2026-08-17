@@ -4,7 +4,7 @@ import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, RotateCcw } from "lucide-react";
 import { atualizarStatusEvento } from "@/lib/actions/agenda";
-import { cancelarContrato } from "@/lib/actions/contratos";
+import CancelarEventoDialog from "./cancelar-evento-dialog";
 
 export default function EventoAcoes({
   eventoId,
@@ -41,19 +41,7 @@ export default function EventoAcoes({
       >
         <CheckCircle2 className="h-4 w-4" /> Finalizar evento
       </Button>
-      {status !== "cancelado" && (
-        <Button
-          variant="destructive"
-          disabled={isPending}
-          onClick={() => {
-            if (window.confirm("Cancelar este evento e o contrato vinculado?")) {
-              startTransition(() => cancelarContrato(contratoId));
-            }
-          }}
-        >
-          Cancelar
-        </Button>
-      )}
+      {status !== "cancelado" && <CancelarEventoDialog contratoId={contratoId} />}
     </div>
   );
 }
