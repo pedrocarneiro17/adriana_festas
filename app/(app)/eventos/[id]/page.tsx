@@ -189,7 +189,7 @@ export default async function EventoDetalhePage({ params }: { params: Promise<{ 
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Pagamentos</CardTitle>
-            {!readOnly && saldo > 0 && (
+            {!readOnly && (
               <RegistrarPagamentoDialog contratoId={evento.contrato.id} clienteNome={evento.contrato.cliente.nome} saldo={saldo} />
             )}
           </div>

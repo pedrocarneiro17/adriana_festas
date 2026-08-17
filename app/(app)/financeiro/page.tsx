@@ -52,14 +52,14 @@ export default async function FinanceiroPage({
     return { ...e, total, pago, saldo, despesasEvento, lucro, margem };
   });
 
-  const totalContratado = eventosComFinanceiro.reduce((acc, e) => acc + e.total, 0);
-  const totalRecebido = eventosComFinanceiro.reduce((acc, e) => acc + e.pago, 0);
-  const totalDespesas = eventosComFinanceiro.reduce((acc, e) => acc + e.despesasEvento, 0);
-  const aReceber = totalContratado - totalRecebido;
-  const saldoCaixa = totalRecebido - totalDespesas;
-
   const comSaldoPendente = eventosComFinanceiro.filter((e) => e.saldo > 0);
   const listaExibida = somenteAberto ? comSaldoPendente : eventosComFinanceiro;
+
+  const totalContratado = listaExibida.reduce((acc, e) => acc + e.total, 0);
+  const totalRecebido = listaExibida.reduce((acc, e) => acc + e.pago, 0);
+  const totalDespesas = listaExibida.reduce((acc, e) => acc + e.despesasEvento, 0);
+  const aReceber = totalContratado - totalRecebido;
+  const saldoCaixa = totalRecebido - totalDespesas;
 
   return (
     <div className="flex flex-col gap-6">
