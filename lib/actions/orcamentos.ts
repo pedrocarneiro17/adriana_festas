@@ -76,7 +76,6 @@ export async function criarOrcamento(data: OrcamentoFormInput) {
       status: "rascunho",
       desconto: data.desconto,
       total,
-      versao: 1,
       validadeAte: data.validadeAte ? new Date(`${data.validadeAte}T12:00:00.000Z`) : null,
       observacoes: data.observacoes || null,
       itens: { create: itensComPreco },
@@ -87,20 +86,32 @@ export async function criarOrcamento(data: OrcamentoFormInput) {
   redirect(`/orcamentos/${orcamento.id}`);
 }
 
+// Editar um orçamento sempre atualiza o mesmo registro em cima — não cria uma
+// segunda linha, mesmo quando já aprovado (reajuste). Se o orçamento já tiver
+// virado um evento, o checklist de materiais é recalculado a partir dos novos
+// itens, já que o evento fica associado a este único orçamento.
 export async function atualizarOrcamentoRascunho(id: string, data: OrcamentoFormInput) {
-  const orcamento = await prisma.orcamento.findUniqueOrThrow({ where: { id } });
-
-  if (orcamento.status === "aprovado") {
-    // reajuste: não edita em memória, cria nova versão
-    return reajustarOrcamento(id, data);
-  }
-
   const itensComPreco = await calcularItensComPreco(data.itens);
   const total = calcularTotal(itensComPreco, data.desconto);
 
-  await prisma.$transaction([
-    prisma.orcamentoItem.deleteMany({ where: { orcamentoId: id } }),
-    prisma.orcamento.update({
+  const materiaisAgregados = new Map<string, { unidade: string; quantidade: number }>();
+  for (const item of data.itens) {
+    const produto = await prisma.produto.findUnique({
+      where: { id: item.produtoId },
+      include: { materiais: { include: { material: true } } },
+    });
+    for (const produtoMaterial of produto?.materiais ?? []) {
+      const key = produtoMaterial.material.nome.trim().toLowerCase();
+      const qtdNecessaria = Number(produtoMaterial.quantidadeNecessaria) * item.quantidade;
+      const existente = materiaisAgregados.get(key);
+      if (existente) existente.quantidade += qtdNecessaria;
+      else materiaisAgregados.set(key, { unidade: produtoMaterial.material.unidade, quantidade: qtdNecessaria });
+    }
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.orcamentoItem.deleteMany({ where: { orcamentoId: id } });
+    await tx.orcamento.update({
       where: { id },
       data: {
         desconto: data.desconto,
@@ -109,56 +120,41 @@ export async function atualizarOrcamentoRascunho(id: string, data: OrcamentoForm
         observacoes: data.observacoes || null,
         itens: { create: itensComPreco },
       },
-    }),
-  ]);
+    });
+
+    const evento = await tx.evento.findFirst({ where: { contrato: { orcamentoId: id } } });
+    if (evento) {
+      await tx.checklistMaterialItem.deleteMany({ where: { checklist: { eventoId: evento.id } } });
+      if (materiaisAgregados.size > 0) {
+        await tx.checklistMateriais.upsert({
+          where: { eventoId: evento.id },
+          create: {
+            eventoId: evento.id,
+            itens: {
+              create: Array.from(materiaisAgregados.entries()).map(([nome, v]) => ({
+                materialNome: nome,
+                quantidadeTotalNecessaria: v.quantidade,
+                unidade: v.unidade,
+              })),
+            },
+          },
+          update: {
+            itens: {
+              create: Array.from(materiaisAgregados.entries()).map(([nome, v]) => ({
+                materialNome: nome,
+                quantidadeTotalNecessaria: v.quantidade,
+                unidade: v.unidade,
+              })),
+            },
+          },
+        });
+      }
+      revalidatePath(`/eventos/${evento.id}`);
+    }
+  });
 
   revalidatePath(`/orcamentos/${id}`);
   revalidatePath("/orcamentos");
-}
-
-// Regra de negócio: reajustar orçamento já aprovado.
-// O orçamento atual vira pendente_reajuste, uma nova versão é criada,
-// e o contrato vinculado vira pendente_revisao.
-export async function reajustarOrcamento(orcamentoOrigemId: string, data: OrcamentoFormInput) {
-  const origem = await prisma.orcamento.findUniqueOrThrow({
-    where: { id: orcamentoOrigemId },
-    include: { contrato: true },
-  });
-
-  const itensComPreco = await calcularItensComPreco(data.itens);
-  const total = calcularTotal(itensComPreco, data.desconto);
-
-  const novoOrcamento = await prisma.$transaction(async (tx) => {
-    await tx.orcamento.update({
-      where: { id: orcamentoOrigemId },
-      data: { status: "pendente_reajuste" },
-    });
-
-    if (origem.contrato) {
-      await tx.contrato.update({
-        where: { id: origem.contrato.id },
-        data: { status: "pendente_revisao" },
-      });
-    }
-
-    return tx.orcamento.create({
-      data: {
-        clienteId: origem.clienteId,
-        status: "rascunho",
-        desconto: data.desconto,
-        total,
-        versao: origem.versao + 1,
-        origemId: origem.origemId || origem.id,
-        validadeAte: data.validadeAte ? new Date(`${data.validadeAte}T12:00:00.000Z`) : null,
-        observacoes: data.observacoes || null,
-        itens: { create: itensComPreco },
-      },
-    });
-  });
-
-  revalidatePath("/orcamentos");
-  revalidatePath(`/orcamentos/${orcamentoOrigemId}`);
-  redirect(`/orcamentos/${novoOrcamento.id}`);
 }
 
 export async function mudarStatusOrcamento(
@@ -182,7 +178,6 @@ export async function duplicarOrcamento(id: string) {
       status: "rascunho",
       desconto: original.desconto,
       total: original.total,
-      versao: 1,
       observacoes: original.observacoes,
       itens: {
         create: original.itens.map((i) => ({

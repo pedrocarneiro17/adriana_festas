@@ -4,18 +4,16 @@ import { useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, RotateCcw } from "lucide-react";
 import { atualizarStatusEvento } from "@/lib/actions/agenda";
-import { cancelarContrato, marcarContratoRevisado } from "@/lib/actions/contratos";
+import { cancelarContrato } from "@/lib/actions/contratos";
 
 export default function EventoAcoes({
   eventoId,
   contratoId,
   status,
-  contratoStatus,
 }: {
   eventoId: string;
   contratoId: string;
   status: string;
-  contratoStatus: string;
 }) {
   const [isPending, startTransition] = useTransition();
 
@@ -33,14 +31,6 @@ export default function EventoAcoes({
 
   return (
     <div className="flex flex-wrap gap-2">
-      {contratoStatus === "pendente_revisao" && (
-        <Button
-          disabled={isPending}
-          onClick={() => startTransition(() => marcarContratoRevisado(contratoId))}
-        >
-          Marcar como revisado / válido
-        </Button>
-      )}
       <Button
         disabled={isPending}
         onClick={() => {

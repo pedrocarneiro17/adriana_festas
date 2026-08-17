@@ -18,8 +18,8 @@ export default async function EditarOrcamentoPage({ params }: { params: Promise<
         <h1 className="text-2xl font-bold">Editar orçamento</h1>
         {orcamento.status === "aprovado" && (
           <p className="text-sm text-amber-700">
-            Este orçamento já está aprovado. Ao salvar, uma nova versão será criada para reenvio e o
-            orçamento atual ficará marcado como pendente de reajuste.
+            Este orçamento já está aprovado. As alterações são salvas neste mesmo orçamento — se ele já
+            tiver um evento vinculado, o checklist de materiais é recalculado automaticamente.
           </p>
         )}
       </div>

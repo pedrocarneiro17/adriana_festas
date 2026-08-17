@@ -17,7 +17,6 @@ const statusVariant: Record<string, "default" | "secondary" | "success" | "warni
   enviado: "default",
   aprovado: "success",
   recusado: "destructive",
-  pendente_reajuste: "warning",
 };
 
 export default async function OrcamentoDetalhePage({ params }: { params: Promise<{ id: string }> }) {
@@ -33,19 +32,16 @@ export default async function OrcamentoDetalhePage({ params }: { params: Promise
 
   if (!orcamento) notFound();
 
-  const podeEditar = ["rascunho", "enviado", "recusado", "pendente_reajuste"].includes(
-    orcamento.status
-  );
-  const podeReajustar = orcamento.status === "aprovado";
+  const podeEditar = orcamento.status !== "aprovado" || orcamento.contrato?.evento?.status !== "concluido";
   const podeAprovar = orcamento.status === "enviado" || orcamento.status === "rascunho";
+  const evento = orcamento.contrato?.evento;
 
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">
-            Orçamento · {orcamento.cliente.nome} <span className="text-sand-500">v{orcamento.versao}</span>
-          </h1>
+          <h1 className="text-2xl font-bold">Orçamento · {evento?.nome || orcamento.cliente.nome}</h1>
+          {evento && <p className="text-sm text-sand-600">{orcamento.cliente.nome}</p>}
           <p className="text-sm text-sand-600">Criado em {formatDate(orcamento.dataCriacao)}</p>
         </div>
         <div className="flex items-center gap-2">
@@ -56,22 +52,15 @@ export default async function OrcamentoDetalhePage({ params }: { params: Promise
             </a>
           </Button>
           <DuplicarButton id={orcamento.id} />
-          {(podeEditar || podeReajustar) && (
+          {podeEditar && (
             <ReajustarButton
               orcamentoId={orcamento.id}
-              label={podeReajustar ? "Reajustar" : "Editar"}
-              contratoAssinado={podeReajustar && orcamento.contrato?.assinado === true}
+              label="Editar"
+              contratoAssinado={orcamento.status === "aprovado" && orcamento.contrato?.assinado === true}
             />
           )}
         </div>
       </div>
-
-      {orcamento.status === "pendente_reajuste" && (
-        <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
-          Este orçamento foi reajustado. Uma nova versão foi criada e precisa de nova aprovação. O contrato
-          vinculado está marcado como <strong>pendente de revisão</strong>.
-        </div>
-      )}
 
       <Card>
         <CardHeader>
@@ -114,10 +103,10 @@ export default async function OrcamentoDetalhePage({ params }: { params: Promise
         </Card>
       )}
 
-      {orcamento.contrato?.evento && (
+      {evento && (
         <div className="rounded-[28px] bg-[var(--color-surface)] p-4 text-sm">
           Evento gerado:{" "}
-          <Link href={`/eventos/${orcamento.contrato.evento.id}`} className="text-brand-700 hover:underline">
+          <Link href={`/eventos/${evento.id}`} className="text-brand-700 hover:underline">
             ver evento
           </Link>
         </div>
@@ -125,7 +114,7 @@ export default async function OrcamentoDetalhePage({ params }: { params: Promise
 
       <div className="flex flex-wrap gap-3">
         {podeAprovar && <AprovarOrcamentoDialog orcamentoId={orcamento.id} validadeAte={orcamento.validadeAte?.toISOString().slice(0,10) ?? null} />}
-        {podeEditar && <OrcamentoStatusActions id={orcamento.id} status={orcamento.status} />}
+        {podeEditar && orcamento.status !== "aprovado" && <OrcamentoStatusActions id={orcamento.id} status={orcamento.status} />}
       </div>
     </div>
   );

@@ -53,7 +53,7 @@ export default async function ClienteDetalhePage({ params }: { params: Promise<{
                 href={`/orcamentos/${o.id}`}
                 className="flex items-center justify-between rounded-md border border-[var(--color-divider)] p-2 text-sm hover:bg-sand-100"
               >
-                <span>{formatDate(o.dataCriacao)} · v{o.versao}</span>
+                <span>{formatDate(o.dataCriacao)}</span>
                 <span className="flex items-center gap-2">
                   {formatBRL(o.total.toString())}
                   <Badge variant="secondary">{o.status}</Badge>

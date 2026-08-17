@@ -22,11 +22,6 @@ export async function atualizarCondicoesPagamento(id: string, condicoesPagamento
   await revalidateEventoDoContrato(id);
 }
 
-export async function marcarContratoRevisado(id: string) {
-  await prisma.contrato.update({ where: { id }, data: { status: "ativo" } });
-  await revalidateEventoDoContrato(id);
-}
-
 export async function cancelarContrato(id: string) {
   await prisma.$transaction(async (tx) => {
     await tx.contrato.update({ where: { id }, data: { status: "cancelado" } });

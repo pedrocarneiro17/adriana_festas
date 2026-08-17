@@ -67,9 +67,14 @@ export default async function EventoDetalhePage({ params }: { params: Promise<{ 
           <p className="text-sm text-sand-600">
             {evento.contrato.cliente.nome} · {formatDate(evento.data)} {evento.horario && `· ${evento.horario}`} {evento.local && `· ${evento.local}`}
           </p>
-          <Link href={`/clientes/${evento.contrato.cliente.id ?? ""}`} className="text-sm text-brand-700 hover:underline">
-            ver cliente
-          </Link>
+          <div className="flex gap-3">
+            <Link href={`/clientes/${evento.contrato.cliente.id ?? ""}`} className="text-sm text-brand-700 hover:underline">
+              ver cliente
+            </Link>
+            <Link href={`/orcamentos/${evento.contrato.orcamento.id}`} className="text-sm text-brand-700 hover:underline">
+              ver orçamento
+            </Link>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Badge variant={statusVariant[evento.status]}>{evento.status.replace("_", " ")}</Badge>
@@ -84,12 +89,6 @@ export default async function EventoDetalhePage({ params }: { params: Promise<{ 
       {readOnly && (
         <div className="rounded-full border border-sage-300 bg-sage-100 px-4 py-2 text-sm text-sage-800">
           Evento finalizado — os registros estão bloqueados para edição. Reabra o evento para alterar algo.
-        </div>
-      )}
-
-      {evento.contrato.status === "pendente_revisao" && (
-        <div className="rounded-full border border-amber-300 bg-amber-100 px-4 py-2 text-sm text-amber-800">
-          O orçamento de origem foi reajustado. Revise as condições deste evento.
         </div>
       )}
 
@@ -285,7 +284,6 @@ export default async function EventoDetalhePage({ params }: { params: Promise<{ 
         eventoId={evento.id}
         contratoId={evento.contrato.id}
         status={evento.status}
-        contratoStatus={evento.contrato.status}
       />
     </div>
   );

@@ -85,6 +85,9 @@ model ProdutoMaterial {
   @@map("produto_materiais")
 }
 
+// Um orçamento aprovado nunca gera uma segunda linha: editar um orçamento já
+// aprovado (reajuste) atualiza os itens/total deste mesmo registro — que é o
+// mesmo que fica associado ao Contrato/Evento. Não há histórico de versões.
 model Orcamento {
   id          String          @id @default(cuid())
   clienteId   String          @map("cliente_id")
@@ -93,8 +96,6 @@ model Orcamento {
   status      String          @default("rascunho")
   desconto    Decimal         @default(0)
   total       Decimal         @default(0)
-  versao      Int             @default(1)
-  origemId    String?         @map("origem_id") // id do orçamento original, para versões de reajuste
   observacoes String?
 
   cliente Cliente         @relation(fields: [clienteId], references: [id])

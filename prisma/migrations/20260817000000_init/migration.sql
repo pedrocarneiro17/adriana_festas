@@ -70,8 +70,6 @@ CREATE TABLE "orcamentos" (
     "status" TEXT NOT NULL DEFAULT 'rascunho',
     "desconto" DECIMAL(65,30) NOT NULL DEFAULT 0,
     "total" DECIMAL(65,30) NOT NULL DEFAULT 0,
-    "versao" INTEGER NOT NULL DEFAULT 1,
-    "origem_id" TEXT,
     "observacoes" TEXT,
 
     CONSTRAINT "orcamentos_pkey" PRIMARY KEY ("id")

@@ -118,7 +118,6 @@ async function main() {
         status: "aprovado",
         desconto: params.desconto ?? 0,
         total,
-        versao: 1,
         itens: { create: itensComPreco },
       },
       include: {
@@ -216,7 +215,6 @@ async function main() {
       status: "enviado",
       desconto: 0,
       total: 350 + 600 * 2,
-      versao: 1,
       itens: {
         create: [
           { produtoId: arcoBaloes.id, quantidade: 1, valorUnitarioCongelado: 350, subtotal: 350 },
@@ -233,7 +231,6 @@ async function main() {
       status: "enviado",
       desconto: 50,
       total: 450 - 50,
-      versao: 1,
       itens: { create: [{ produtoId: painelFesta.id, quantidade: 1, valorUnitarioCongelado: 450, subtotal: 450 }] },
     },
   });
@@ -245,7 +242,6 @@ async function main() {
       status: "rascunho",
       desconto: 0,
       total: 280,
-      versao: 1,
       itens: { create: [{ produtoId: kitMesaInfantil.id, quantidade: 1, valorUnitarioCongelado: 280, subtotal: 280 }] },
     },
   });
@@ -257,7 +253,6 @@ async function main() {
       status: "recusado",
       desconto: 0,
       total: 600,
-      versao: 1,
       itens: { create: [{ produtoId: mesaDoce.id, quantidade: 1, valorUnitarioCongelado: 600, subtotal: 600 }] },
     },
   });
@@ -347,33 +342,14 @@ async function main() {
     condicoesPagamento: "Entrada de 30% + saldo em até 2 parcelas",
   });
 
-  // Patrícia: orçamento aprovado, evento criado e depois um reajuste pendente
-  const eventoPatricia = await aprovarOrcamentoSeed({
+  // Patrícia: orçamento aprovado e evento criado
+  await aprovarOrcamentoSeed({
     clienteId: patricia.id,
     itens: [{ produtoId: painelFesta.id, quantidade: 1, valorUnitario: 450 }],
     dataEvento: addDays(hoje, 15),
     nomeEvento: "Debutante - Patrícia",
     horario: "21:00",
     local: "Clube Recanto Feliz",
-  });
-  await prisma.orcamento.update({ where: { id: eventoPatricia.orcamento.id }, data: { status: "pendente_reajuste" } });
-  await prisma.contrato.update({ where: { id: eventoPatricia.contrato.id }, data: { status: "pendente_revisao" } });
-  await prisma.orcamento.create({
-    data: {
-      clienteId: patricia.id,
-      status: "rascunho",
-      desconto: 0,
-      total: 450 + 280,
-      versao: 2,
-      origemId: eventoPatricia.orcamento.id,
-      observacoes: "Cliente pediu para incluir mesa infantil temática além do painel.",
-      itens: {
-        create: [
-          { produtoId: painelFesta.id, quantidade: 1, valorUnitarioCongelado: 450, subtotal: 450 },
-          { produtoId: kitMesaInfantil.id, quantidade: 1, valorUnitarioCongelado: 280, subtotal: 280 },
-        ],
-      },
-    },
   });
 
   // Diego: evento daqui a 2 dias, saldo em aberto (alerta no dashboard)

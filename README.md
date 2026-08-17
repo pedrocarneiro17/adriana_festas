@@ -133,9 +133,11 @@ npx prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma 
   "Finalizar evento". Enquanto finalizado, todos os registros do evento ficam bloqueados para
   edição (pagamentos, despesas, checklist, tarefas, assinatura, condições, data). É possível
   reabrir o evento a qualquer momento para voltar a editar.
-- **Reajuste de orçamento aprovado:** editar um orçamento já aprovado não altera os dados em
-  memória — o orçamento atual passa para `pendente_reajuste`, uma nova versão é criada para
-  reenvio, e o contrato vinculado passa para `pendente_revisao` até revisão manual.
+- **Orçamento associado ao evento, sem versionamento:** um orçamento aprovado nunca gera uma
+  segunda linha. Editar um orçamento já aprovado (reajuste) atualiza os itens/total do mesmo
+  registro — que é o mesmo que fica associado ao Contrato/Evento — e, se já houver um evento
+  gerado, o checklist de materiais é recalculado automaticamente a partir dos novos itens. Editar
+  um orçamento com contrato já assinado pede confirmação antes de abrir a edição.
 - **Preço congelado:** o valor unitário de cada item de orçamento é copiado do produto no
   momento da criação (`valorUnitarioCongelado`) — reprecificar um produto não afeta orçamentos
   já existentes.

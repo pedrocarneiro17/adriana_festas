@@ -22,7 +22,6 @@ const styles = StyleSheet.create({
 type OrcamentoPdfProps = {
   orcamento: {
     id: string;
-    versao: number;
     dataCriacao: Date;
     validadeAte: Date | null;
     desconto: unknown;
@@ -39,7 +38,7 @@ export default function OrcamentoPdf({ orcamento }: OrcamentoPdfProps) {
       <Page size="A4" style={styles.page}>
         <Text style={styles.title}>Orçamento · Adriana Festas</Text>
         <Text style={styles.subtitle}>
-          Versão {orcamento.versao} · Emitido em {formatDate(orcamento.dataCriacao)}
+          Emitido em {formatDate(orcamento.dataCriacao)}
           {orcamento.validadeAte ? ` · Válido até ${formatDate(orcamento.validadeAte)}` : ""}
         </Text>
 
