@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import { formatDate } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
@@ -34,15 +35,15 @@ export default async function AgendaPage({
   const mesAnterior = `${mesAnteriorDate.getUTCFullYear()}-${String(mesAnteriorDate.getUTCMonth() + 1).padStart(2, "0")}`;
   const mesSeguinte = `${mesSeguinteDate.getUTCFullYear()}-${String(mesSeguinteDate.getUTCMonth() + 1).padStart(2, "0")}`;
 
-  const [eventos, tarefasSoltas, datasBloqueadas] = await Promise.all([
+  const [eventos, tarefas, datasBloqueadas, eventosParaAssociar] = await Promise.all([
     prisma.evento.findMany({
       where: { data: { gte: inicioMes, lte: fimMes } },
       include: { contrato: { include: { cliente: true } } },
       orderBy: { data: "asc" },
     }),
     prisma.tarefa.findMany({
-      where: { eventoId: null, data: { gte: inicioMes, lte: fimMes } },
-      include: { itens: true },
+      where: { data: { gte: inicioMes, lte: fimMes } },
+      include: { itens: true, evento: { include: { contrato: { include: { cliente: true } } } } },
       orderBy: { data: "asc" },
     }),
     prisma.dataBloqueada.findMany({
@@ -52,7 +53,17 @@ export default async function AgendaPage({
       },
       orderBy: { data: "asc" },
     }),
+    prisma.evento.findMany({
+      where: { status: { not: "cancelado" } },
+      include: { contrato: { include: { cliente: true } } },
+      orderBy: { data: "asc" },
+    }),
   ]);
+
+  const eventosOptions = eventosParaAssociar.map((e) => ({
+    id: e.id,
+    label: `${e.nome || e.contrato.cliente.nome} · ${formatDate(e.data)}`,
+  }));
 
   const nomeMes = inicioMes.toLocaleDateString("pt-BR", { month: "long", year: "numeric", timeZone: "UTC" });
 
@@ -80,10 +91,17 @@ export default async function AgendaPage({
         />
       ),
     })),
-    ...tarefasSoltas.map((t): ItemAgenda => ({
+    ...tarefas.map((t): ItemAgenda => ({
       tipo: "tarefa",
       data: t.data,
-      node: <TarefaCard key={`tarefa-${t.id}`} tarefa={{ ...t, data: t.data.toISOString() }} />,
+      node: (
+        <TarefaCard
+          key={`tarefa-${t.id}`}
+          tarefa={{ ...t, data: t.data.toISOString() }}
+          eventoAtual={t.evento ? { id: t.evento.id, nome: t.evento.nome || t.evento.contrato.cliente.nome } : null}
+          eventosOptions={eventosOptions}
+        />
+      ),
     })),
     ...datasBloqueadas.map((d): ItemAgenda => ({
       tipo: "bloqueio",
@@ -127,7 +145,7 @@ export default async function AgendaPage({
         horario: e.horario,
         local: e.local,
       }))}
-      tarefas={tarefasSoltas.map((t) => ({
+      tarefas={tarefas.map((t) => ({
         id: t.id,
         data: t.data.toISOString(),
         titulo: t.titulo,

@@ -48,6 +48,15 @@ export async function excluirTarefa(id: string) {
   revalidatePath("/dashboard");
 }
 
+export async function associarTarefaEvento(tarefaId: string, eventoId: string | null) {
+  const anterior = await prisma.tarefa.findUniqueOrThrow({ where: { id: tarefaId } });
+  await prisma.tarefa.update({ where: { id: tarefaId }, data: { eventoId } });
+  revalidatePath("/agenda");
+  revalidatePath("/dashboard");
+  if (anterior.eventoId) revalidatePath(`/eventos/${anterior.eventoId}`);
+  if (eventoId) revalidatePath(`/eventos/${eventoId}`);
+}
+
 export async function alternarChecklistMaterial(itemId: string, tenho: boolean) {
   await prisma.checklistMaterialItem.update({ where: { id: itemId }, data: { tenho } });
   revalidatePath("/agenda");

@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -170,7 +169,7 @@ export default async function FinanceiroPage({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Cliente</TableHead>
+                <TableHead>Evento</TableHead>
                 <TableHead>Data</TableHead>
                 <TableHead>Receita</TableHead>
                 <TableHead>Despesas</TableHead>
@@ -185,11 +184,10 @@ export default async function FinanceiroPage({
                 const lucro = receita - despesasEvento;
                 const margem = receita > 0 ? (lucro / receita) * 100 : 0;
                 return (
-                  <TableRow key={e.id}>
-                    <TableCell>
-                      <Link href={`/eventos/${e.id}`} className="text-brand-700 hover:underline">
-                        {e.contrato.cliente.nome}
-                      </Link>
+                  <ClickableRow key={e.id} href={`/eventos/${e.id}`}>
+                    <TableCell className="font-medium">
+                      {e.nome || e.contrato.cliente.nome}
+                      <span className="block text-xs font-normal text-sand-500">{e.contrato.cliente.nome}</span>
                     </TableCell>
                     <TableCell>{formatDate(e.data)}</TableCell>
                     <TableCell>{formatBRL(receita)}</TableCell>
@@ -200,7 +198,7 @@ export default async function FinanceiroPage({
                     <TableCell className={margem >= 0 ? "text-sage-700" : "text-red-700"}>
                       {margem.toFixed(1)}%
                     </TableCell>
-                  </TableRow>
+                  </ClickableRow>
                 );
               })}
               {eventos.length === 0 && (
