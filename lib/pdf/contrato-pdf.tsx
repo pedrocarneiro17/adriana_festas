@@ -22,7 +22,7 @@ type ContratoPdfProps = {
     condicoesPagamento: string | null;
     assinado: boolean;
     dataAssinatura: Date | null;
-    cliente: { nome: string; telefone: string | null; email: string | null; endereco: string | null; documento: string | null };
+    cliente: { nome: string; telefone: string | null; endereco: string | null; documento: string | null };
     orcamento: { total: unknown };
     evento: { data: Date; horario: string | null; local: string | null } | null;
   };

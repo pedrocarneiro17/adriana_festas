@@ -21,10 +21,24 @@ export default function FinanceiroFiltros({ clientes }: { clientes: { id: string
   const clienteId = searchParams.get("cliente") ?? "";
   const de = searchParams.get("de") ?? "";
   const ate = searchParams.get("ate") ?? "";
-  const temFiltros = clienteId || de || ate;
+  const lancamentos = searchParams.get("lancamentos") === "todos" ? "todos" : "aberto";
+  const temFiltros = clienteId || de || ate || lancamentos === "todos";
 
   return (
     <div className="flex flex-wrap items-end gap-3 rounded-[28px] bg-[var(--color-surface)] p-4">
+      <div className="flex flex-col gap-1">
+        <Label className="text-xs">Lançamentos</Label>
+        <Select value={lancamentos} onValueChange={(v) => setParam("lancamentos", v === "aberto" ? "" : v)}>
+          <SelectTrigger className="w-40">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="aberto">Em aberto</SelectItem>
+            <SelectItem value="todos">Todos</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
       <div className="flex flex-col gap-1">
         <Label className="text-xs">Cliente</Label>
         <Select value={clienteId || "todos"} onValueChange={(v) => setParam("cliente", v === "todos" ? "" : v)}>

@@ -27,7 +27,7 @@ type OrcamentoPdfProps = {
     desconto: unknown;
     total: unknown;
     observacoes: string | null;
-    cliente: { nome: string; telefone: string | null; email: string | null; endereco: string | null };
+    cliente: { nome: string; telefone: string | null; endereco: string | null };
     itens: { produto: { nome: string }; quantidade: unknown; valorUnitarioCongelado: unknown; subtotal: unknown }[];
   };
 };
@@ -46,7 +46,6 @@ export default function OrcamentoPdf({ orcamento }: OrcamentoPdfProps) {
           <Text style={styles.sectionTitle}>Cliente</Text>
           <Text>{orcamento.cliente.nome}</Text>
           {orcamento.cliente.telefone && <Text>Telefone: {orcamento.cliente.telefone}</Text>}
-          {orcamento.cliente.email && <Text>E-mail: {orcamento.cliente.email}</Text>}
           {orcamento.cliente.endereco && <Text>Endereço: {orcamento.cliente.endereco}</Text>}
         </View>
 

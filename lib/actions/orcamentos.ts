@@ -14,7 +14,6 @@ export type OrcamentoFormInput = {
   clienteNovo?: {
     nome: string;
     telefone?: string;
-    email?: string;
     endereco?: string;
     documento?: string;
   };
@@ -57,7 +56,6 @@ export async function criarOrcamento(data: OrcamentoFormInput) {
       data: {
         nome: data.clienteNovo.nome,
         telefone: data.clienteNovo.telefone || null,
-        email: data.clienteNovo.email || null,
         endereco: data.clienteNovo.endereco || null,
         documento: data.clienteNovo.documento || null,
       },

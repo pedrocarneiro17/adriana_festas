@@ -22,7 +22,7 @@ export default async function ClientesPage() {
             <TableRow>
               <TableHead>Nome</TableHead>
               <TableHead>Telefone</TableHead>
-              <TableHead>E-mail</TableHead>
+              <TableHead>Endereço</TableHead>
               <TableHead>Documento</TableHead>
               <TableHead className="text-right">Ações</TableHead>
             </TableRow>
@@ -36,7 +36,7 @@ export default async function ClientesPage() {
                   </Link>
                 </TableCell>
                 <TableCell>{c.telefone || "-"}</TableCell>
-                <TableCell>{c.email || "-"}</TableCell>
+                <TableCell>{c.endereco || "-"}</TableCell>
                 <TableCell>{c.documento || "-"}</TableCell>
                 <TableCell className="text-right">
                   <ClienteFormDialog cliente={c} />

@@ -174,56 +174,6 @@ export default async function EventoDetalhePage({ params }: { params: Promise<{ 
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Despesas do evento</CardTitle>
-            {!readOnly && <NovaDespesaEventoDialog eventoId={evento.id} />}
-          </div>
-        </CardHeader>
-        <CardContent>
-          <p className="mb-2 text-sm">Total de despesas: <strong>{formatBRL(totalDespesas)}</strong></p>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Descrição</TableHead>
-                <TableHead>Data</TableHead>
-                <TableHead>Valor</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {evento.despesas.map((d) => (
-                <DespesaEventoRow
-                  key={d.id}
-                  despesa={{ id: d.id, descricao: d.descricao, valor: d.valor.toString(), data: d.data.toISOString() }}
-                  readOnly={readOnly}
-                />
-              ))}
-              {evento.despesas.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={4} className="py-6 text-center text-sand-500">
-                    Nenhuma despesa registrada ainda.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
-          <CardTitle>Margem de lucro do evento</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-wrap gap-6 text-sm">
-          <span>Receita: <strong>{formatBRL(total)}</strong></span>
-          <span>Despesas: <strong className="text-amber-700">{formatBRL(totalDespesas)}</strong></span>
-          <span>Lucro: <strong className={lucro >= 0 ? "text-sage-700" : "text-red-700"}>{formatBRL(lucro)}</strong></span>
-          <span>Margem: <strong className={margem >= 0 ? "text-sage-700" : "text-red-700"}>{margem.toFixed(1)}%</strong></span>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader>
           <CardTitle>Condições de pagamento</CardTitle>
         </CardHeader>
         <CardContent>
@@ -277,6 +227,56 @@ export default async function EventoDetalhePage({ params }: { params: Promise<{ 
               )}
             </TableBody>
           </Table>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <CardTitle>Despesas do evento</CardTitle>
+            {!readOnly && <NovaDespesaEventoDialog eventoId={evento.id} />}
+          </div>
+        </CardHeader>
+        <CardContent>
+          <p className="mb-2 text-sm">Total de despesas: <strong>{formatBRL(totalDespesas)}</strong></p>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Descrição</TableHead>
+                <TableHead>Data</TableHead>
+                <TableHead>Valor</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {evento.despesas.map((d) => (
+                <DespesaEventoRow
+                  key={d.id}
+                  despesa={{ id: d.id, descricao: d.descricao, valor: d.valor.toString(), data: d.data.toISOString() }}
+                  readOnly={readOnly}
+                />
+              ))}
+              {evento.despesas.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={4} className="py-6 text-center text-sand-500">
+                    Nenhuma despesa registrada ainda.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Margem de lucro do evento</CardTitle>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-6 text-sm">
+          <span>Receita: <strong>{formatBRL(total)}</strong></span>
+          <span>Despesas: <strong className="text-amber-700">{formatBRL(totalDespesas)}</strong></span>
+          <span>Lucro: <strong className={lucro >= 0 ? "text-sage-700" : "text-red-700"}>{formatBRL(lucro)}</strong></span>
+          <span>Margem: <strong className={margem >= 0 ? "text-sage-700" : "text-red-700"}>{margem.toFixed(1)}%</strong></span>
         </CardContent>
       </Card>
 

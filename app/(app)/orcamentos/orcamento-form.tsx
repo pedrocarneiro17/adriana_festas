@@ -33,7 +33,7 @@ export default function OrcamentoForm({ clientes, produtos, orcamentoId, initial
   const [isPending, startTransition] = useTransition();
   const [clienteId, setClienteId] = useState(initial?.clienteId ?? "");
   const [clienteNovoAtivo, setClienteNovoAtivo] = useState(false);
-  const [clienteNovo, setClienteNovo] = useState({ nome: "", telefone: "", email: "" });
+  const [clienteNovo, setClienteNovo] = useState({ nome: "", telefone: "", endereco: "" });
   const [validadeAte, setValidadeAte] = useState(initial?.validadeAte?.slice(0, 10) ?? "");
   const [desconto, setDesconto] = useState(Number(initial?.desconto ?? 0));
   const [observacoes, setObservacoes] = useState(initial?.observacoes ?? "");
@@ -139,9 +139,9 @@ export default function OrcamentoForm({ clientes, produtos, orcamentoId, initial
                 onChange={(e) => setClienteNovo({ ...clienteNovo, telefone: e.target.value })}
               />
               <Input
-                placeholder="E-mail"
-                value={clienteNovo.email}
-                onChange={(e) => setClienteNovo({ ...clienteNovo, email: e.target.value })}
+                placeholder="Endereço"
+                value={clienteNovo.endereco}
+                onChange={(e) => setClienteNovo({ ...clienteNovo, endereco: e.target.value })}
               />
             </div>
           ) : (

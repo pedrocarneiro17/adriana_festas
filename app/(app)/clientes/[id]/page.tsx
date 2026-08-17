@@ -25,7 +25,7 @@ export default async function ClienteDetalhePage({ params }: { params: Promise<{
       <div>
         <h1 className="text-2xl font-bold">{cliente.nome}</h1>
         <p className="text-sm text-sand-600">
-          {cliente.telefone || "sem telefone"} · {cliente.email || "sem e-mail"}
+          {cliente.telefone || "sem telefone"} · {cliente.endereco || "sem endereço"}
         </p>
       </div>
 

@@ -20,7 +20,6 @@ type ClienteExistente = {
   id: string;
   nome: string;
   telefone: string | null;
-  email: string | null;
   endereco: string | null;
   documento: string | null;
   observacoes: string | null;
@@ -33,7 +32,6 @@ export default function ClienteFormDialog({ cliente }: { cliente?: ClienteExiste
   const [form, setForm] = useState({
     nome: cliente?.nome ?? "",
     telefone: cliente?.telefone ?? "",
-    email: cliente?.email ?? "",
     endereco: cliente?.endereco ?? "",
     documento: cliente?.documento ?? "",
     observacoes: cliente?.observacoes ?? "",
@@ -50,7 +48,7 @@ export default function ClienteFormDialog({ cliente }: { cliente?: ClienteExiste
         await atualizarCliente(cliente.id, form);
       } else {
         await criarCliente(form);
-        setForm({ nome: "", telefone: "", email: "", endereco: "", documento: "", observacoes: "" });
+        setForm({ nome: "", telefone: "", endereco: "", documento: "", observacoes: "" });
       }
       setOpen(false);
     });
@@ -84,13 +82,9 @@ export default function ClienteFormDialog({ cliente }: { cliente?: ClienteExiste
               <Input value={form.telefone} onChange={(e) => set("telefone", e.target.value)} />
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label>E-mail</Label>
-              <Input type="email" value={form.email} onChange={(e) => set("email", e.target.value)} />
+              <Label>Endereço</Label>
+              <Input value={form.endereco} onChange={(e) => set("endereco", e.target.value)} />
             </div>
-          </div>
-          <div className="flex flex-col gap-1.5">
-            <Label>Endereço</Label>
-            <Input value={form.endereco} onChange={(e) => set("endereco", e.target.value)} />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label>Documento (CPF/CNPJ)</Label>

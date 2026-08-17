@@ -14,7 +14,6 @@ CREATE TABLE "clientes" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "nome" TEXT NOT NULL,
     "telefone" TEXT,
-    "email" TEXT,
     "endereco" TEXT,
     "documento" TEXT,
     "observacoes" TEXT,

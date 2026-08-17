@@ -12,44 +12,29 @@ import type { Prisma } from "@prisma/client";
 export default async function FinanceiroPage({
   searchParams,
 }: {
-  searchParams: Promise<{ cliente?: string; de?: string; ate?: string }>;
+  searchParams: Promise<{ cliente?: string; de?: string; ate?: string; lancamentos?: string }>;
 }) {
-  const { cliente, de, ate } = await searchParams;
+  const { cliente, de, ate, lancamentos } = await searchParams;
+  const somenteAberto = lancamentos !== "todos";
 
   const periodoEvento: Prisma.DateTimeFilter = {};
   if (de) periodoEvento.gte = new Date(`${de}T00:00:00.000Z`);
   if (ate) periodoEvento.lte = new Date(`${ate}T23:59:59.999Z`);
   const temPeriodo = Boolean(de || ate);
 
-  const contratoWhere: Prisma.ContratoWhereInput = {
-    status: { not: "cancelado" },
-    ...(cliente ? { clienteId: cliente } : {}),
-    ...(temPeriodo ? { evento: { data: periodoEvento } } : {}),
-  };
   const eventoWhere: Prisma.EventoWhereInput = {
-    ...(cliente ? { contrato: { clienteId: cliente } } : {}),
+    contrato: {
+      status: { not: "cancelado" },
+      ...(cliente ? { clienteId: cliente } : {}),
+    },
     ...(temPeriodo ? { data: periodoEvento } : {}),
   };
-  const despesaWhere: Prisma.DespesaWhereInput = {
-    ...(cliente ? { evento: { contrato: { clienteId: cliente } } } : {}),
-    ...(temPeriodo ? { evento: { data: periodoEvento } } : {}),
-  };
 
-  const [contratos, despesas, eventos, clientes] = await Promise.all([
-    prisma.contrato.findMany({
-      where: contratoWhere,
-      include: { cliente: true, orcamento: true, evento: true, pagamentos: { orderBy: { data: "desc" } } },
-      orderBy: { criadoEm: "desc" },
-    }),
-    prisma.despesa.findMany({
-      where: despesaWhere,
-      include: { evento: { include: { contrato: { include: { cliente: true } } } } },
-      orderBy: { data: "desc" },
-    }),
+  const [eventos, clientes] = await Promise.all([
     prisma.evento.findMany({
       where: eventoWhere,
       include: {
-        contrato: { include: { cliente: true, orcamento: true } },
+        contrato: { include: { cliente: true, orcamento: true, pagamentos: true } },
         despesas: true,
       },
       orderBy: { data: "desc" },
@@ -57,19 +42,24 @@ export default async function FinanceiroPage({
     prisma.cliente.findMany({ orderBy: { nome: "asc" } }),
   ]);
 
-  const contratosComSaldo = contratos.map((c) => {
-    const total = Number(c.orcamento.total);
-    const pago = c.pagamentos.reduce((acc, p) => acc + Number(p.valor), 0);
-    return { ...c, total, pago, saldo: Math.max(0, total - pago) };
+  const eventosComFinanceiro = eventos.map((e) => {
+    const total = Number(e.contrato.orcamento.total);
+    const pago = e.contrato.pagamentos.reduce((acc, p) => acc + Number(p.valor), 0);
+    const saldo = Math.max(0, total - pago);
+    const despesasEvento = e.despesas.reduce((acc, d) => acc + Number(d.valor), 0);
+    const lucro = total - despesasEvento;
+    const margem = total > 0 ? (lucro / total) * 100 : 0;
+    return { ...e, total, pago, saldo, despesasEvento, lucro, margem };
   });
 
-  const totalContratado = contratosComSaldo.reduce((acc, c) => acc + c.total, 0);
-  const totalRecebido = contratosComSaldo.reduce((acc, c) => acc + c.pago, 0);
-  const totalDespesas = despesas.reduce((acc, d) => acc + Number(d.valor), 0);
+  const totalContratado = eventosComFinanceiro.reduce((acc, e) => acc + e.total, 0);
+  const totalRecebido = eventosComFinanceiro.reduce((acc, e) => acc + e.pago, 0);
+  const totalDespesas = eventosComFinanceiro.reduce((acc, e) => acc + e.despesasEvento, 0);
   const aReceber = totalContratado - totalRecebido;
   const saldoCaixa = totalRecebido - totalDespesas;
 
-  const comSaldoPendente = contratosComSaldo.filter((c) => c.saldo > 0);
+  const comSaldoPendente = eventosComFinanceiro.filter((e) => e.saldo > 0);
+  const listaExibida = somenteAberto ? comSaldoPendente : eventosComFinanceiro;
 
   return (
     <div className="flex flex-col gap-6">
@@ -104,7 +94,9 @@ export default async function FinanceiroPage({
       )}
 
       <Card>
-        <CardHeader><CardTitle>Eventos e saldo a receber</CardTitle></CardHeader>
+        <CardHeader>
+          <CardTitle>{somenteAberto ? "Eventos em aberto" : "Todos os lançamentos"}</CardTitle>
+        </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
@@ -114,75 +106,15 @@ export default async function FinanceiroPage({
                 <TableHead>Total</TableHead>
                 <TableHead>Pago</TableHead>
                 <TableHead>Saldo</TableHead>
+                <TableHead>Despesas</TableHead>
+                <TableHead>Lucro</TableHead>
+                <TableHead>Margem</TableHead>
                 <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {contratosComSaldo.map((c) => {
-                const bloqueado = c.evento?.status === "concluido";
-                const linhas = (
-                  <>
-                    <TableCell className="font-medium">
-                      {c.evento?.nome || c.cliente.nome}
-                      <span className="block text-xs font-normal text-sand-500">{c.cliente.nome}</span>
-                    </TableCell>
-                    <TableCell>{c.evento ? formatDate(c.evento.data) : "-"}</TableCell>
-                    <TableCell>{formatBRL(c.total)}</TableCell>
-                    <TableCell>{formatBRL(c.pago)}</TableCell>
-                    <TableCell>
-                      <Badge variant={c.saldo === 0 ? "success" : "warning"}>{formatBRL(c.saldo)}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {c.saldo > 0 && !bloqueado ? (
-                        <StopRowClick>
-                          <RegistrarPagamentoDialog contratoId={c.id} clienteNome={c.cliente.nome} saldo={c.saldo} />
-                        </StopRowClick>
-                      ) : (
-                        <span className="text-xs text-sand-500">{c.saldo === 0 ? "Quitado" : "Evento finalizado"}</span>
-                      )}
-                    </TableCell>
-                  </>
-                );
-                return c.evento ? (
-                  <ClickableRow key={c.id} href={`/eventos/${c.evento.id}`}>
-                    {linhas}
-                  </ClickableRow>
-                ) : (
-                  <TableRow key={c.id}>{linhas}</TableRow>
-                );
-              })}
-              {contratosComSaldo.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={6} className="py-6 text-center text-sand-500">
-                    Nenhum evento encontrado com esses filtros.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <CardHeader><CardTitle>Margem de lucro por evento</CardTitle></CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Evento</TableHead>
-                <TableHead>Data</TableHead>
-                <TableHead>Receita</TableHead>
-                <TableHead>Despesas</TableHead>
-                <TableHead>Lucro</TableHead>
-                <TableHead>Margem</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {eventos.map((e) => {
-                const receita = Number(e.contrato.orcamento.total);
-                const despesasEvento = e.despesas.reduce((acc, d) => acc + Number(d.valor), 0);
-                const lucro = receita - despesasEvento;
-                const margem = receita > 0 ? (lucro / receita) * 100 : 0;
+              {listaExibida.map((e) => {
+                const bloqueado = e.status === "concluido";
                 return (
                   <ClickableRow key={e.id} href={`/eventos/${e.id}`}>
                     <TableCell className="font-medium">
@@ -190,21 +122,36 @@ export default async function FinanceiroPage({
                       <span className="block text-xs font-normal text-sand-500">{e.contrato.cliente.nome}</span>
                     </TableCell>
                     <TableCell>{formatDate(e.data)}</TableCell>
-                    <TableCell>{formatBRL(receita)}</TableCell>
-                    <TableCell>{formatBRL(despesasEvento)}</TableCell>
-                    <TableCell className={lucro >= 0 ? "text-sage-700" : "text-red-700"}>
-                      {formatBRL(lucro)}
+                    <TableCell>{formatBRL(e.total)}</TableCell>
+                    <TableCell>{formatBRL(e.pago)}</TableCell>
+                    <TableCell>
+                      <Badge variant={e.saldo === 0 ? "success" : "warning"}>{formatBRL(e.saldo)}</Badge>
                     </TableCell>
-                    <TableCell className={margem >= 0 ? "text-sage-700" : "text-red-700"}>
-                      {margem.toFixed(1)}%
+                    <TableCell>{formatBRL(e.despesasEvento)}</TableCell>
+                    <TableCell className={e.lucro >= 0 ? "text-sage-700" : "text-red-700"}>
+                      {formatBRL(e.lucro)}
+                    </TableCell>
+                    <TableCell className={e.margem >= 0 ? "text-sage-700" : "text-red-700"}>
+                      {e.margem.toFixed(1)}%
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {e.saldo > 0 && !bloqueado ? (
+                        <StopRowClick>
+                          <RegistrarPagamentoDialog contratoId={e.contrato.id} clienteNome={e.contrato.cliente.nome} saldo={e.saldo} />
+                        </StopRowClick>
+                      ) : (
+                        <span className="text-xs text-sand-500">{e.saldo === 0 ? "Quitado" : "Evento finalizado"}</span>
+                      )}
                     </TableCell>
                   </ClickableRow>
                 );
               })}
-              {eventos.length === 0 && (
+              {listaExibida.length === 0 && (
                 <TableRow>
-                  <TableCell colSpan={6} className="py-6 text-center text-sand-500">
-                    Nenhum evento encontrado com esses filtros.
+                  <TableCell colSpan={9} className="py-6 text-center text-sand-500">
+                    {somenteAberto
+                      ? "Nenhum evento em aberto com esses filtros."
+                      : "Nenhum evento encontrado com esses filtros."}
                   </TableCell>
                 </TableRow>
               )}

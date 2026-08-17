@@ -33,7 +33,6 @@ model Cliente {
   id           String   @id @default(cuid())
   nome         String
   telefone     String?
-  email        String?
   endereco     String?
   documento    String?
   observacoes  String?
