@@ -97,7 +97,10 @@ export default async function DashboardPage() {
               href={`/eventos/${e.id}`}
               className="flex items-center justify-between gap-3 rounded-full border border-[var(--color-divider)] px-4 py-2 text-sm hover:bg-sand-100"
             >
-              <span>{e.contrato.cliente.nome}</span>
+              <span>
+                {e.nome || e.contrato.cliente.nome}
+                {e.nome && <span className="block text-xs text-sand-500">{e.contrato.cliente.nome}</span>}
+              </span>
               <span className="flex items-center gap-3 text-sand-600">
                 <span>{formatDate(e.data)} {e.horario && `· ${e.horario}`}</span>
                 <Badge variant={e.saldo > 0 ? "warning" : "success"} className="shrink-0">

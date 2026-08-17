@@ -6,6 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { formatBRL, formatDate } from "@/lib/utils";
 import RegistrarPagamentoDialog from "./registrar-pagamento-dialog";
 import FinanceiroFiltros from "./financeiro-filtros";
+import ClickableRow from "@/components/clickable-row";
+import StopRowClick from "@/components/stop-row-click";
 import type { Prisma } from "@prisma/client";
 
 export default async function FinanceiroPage({
@@ -108,8 +110,8 @@ export default async function FinanceiroPage({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Cliente</TableHead>
                 <TableHead>Evento</TableHead>
+                <TableHead>Data</TableHead>
                 <TableHead>Total</TableHead>
                 <TableHead>Pago</TableHead>
                 <TableHead>Saldo</TableHead>
@@ -119,16 +121,11 @@ export default async function FinanceiroPage({
             <TableBody>
               {contratosComSaldo.map((c) => {
                 const bloqueado = c.evento?.status === "concluido";
-                return (
-                  <TableRow key={c.id}>
-                    <TableCell>
-                      {c.evento ? (
-                        <Link href={`/eventos/${c.evento.id}`} className="text-brand-700 hover:underline">
-                          {c.cliente.nome}
-                        </Link>
-                      ) : (
-                        c.cliente.nome
-                      )}
+                const linhas = (
+                  <>
+                    <TableCell className="font-medium">
+                      {c.evento?.nome || c.cliente.nome}
+                      <span className="block text-xs font-normal text-sand-500">{c.cliente.nome}</span>
                     </TableCell>
                     <TableCell>{c.evento ? formatDate(c.evento.data) : "-"}</TableCell>
                     <TableCell>{formatBRL(c.total)}</TableCell>
@@ -138,12 +135,21 @@ export default async function FinanceiroPage({
                     </TableCell>
                     <TableCell className="text-right">
                       {c.saldo > 0 && !bloqueado ? (
-                        <RegistrarPagamentoDialog contratoId={c.id} clienteNome={c.cliente.nome} saldo={c.saldo} />
+                        <StopRowClick>
+                          <RegistrarPagamentoDialog contratoId={c.id} clienteNome={c.cliente.nome} saldo={c.saldo} />
+                        </StopRowClick>
                       ) : (
                         <span className="text-xs text-sand-500">{c.saldo === 0 ? "Quitado" : "Evento finalizado"}</span>
                       )}
                     </TableCell>
-                  </TableRow>
+                  </>
+                );
+                return c.evento ? (
+                  <ClickableRow key={c.id} href={`/eventos/${c.evento.id}`}>
+                    {linhas}
+                  </ClickableRow>
+                ) : (
+                  <TableRow key={c.id}>{linhas}</TableRow>
                 );
               })}
               {contratosComSaldo.length === 0 && (
