@@ -48,7 +48,11 @@ export default async function FinanceiroPage({
 
   const eventosComFinanceiro = eventos.map((e) => {
     const total = Number(e.contrato.valorMulta ?? e.contrato.orcamento.total);
-    const pago = e.contrato.pagamentos.reduce((acc, p) => acc + Number(p.valor), 0);
+    const pagoRegistrado = e.contrato.pagamentos.reduce((acc, p) => acc + Number(p.valor), 0);
+    // Os pagamentos registrados nunca são apagados (ficam intactos na página
+    // do evento), mas o valor que efetivamente conta pro financeiro fica
+    // limitado ao total (ex: multa de cancelamento menor que o já pago).
+    const pago = Math.min(pagoRegistrado, total);
     const saldo = Math.max(0, total - pago);
     const despesasEvento = e.despesas.reduce((acc, d) => acc + Number(d.valor), 0);
     const lucro = total - despesasEvento;
