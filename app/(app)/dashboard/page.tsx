@@ -45,7 +45,7 @@ export default async function DashboardPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-bold">Painel</h1>
-        <p className="text-sm text-sand-600">Resumo do dia a dia da Adriana Festas</p>
+        <p className="text-sm text-sand-600">Resumo do dia a dia da Adriana Maia Festas</p>
       </div>
 
       {tarefasComPendencias.length > 0 && (

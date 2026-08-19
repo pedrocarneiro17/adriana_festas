@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,8 +37,15 @@ export default function LoginPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-brand-50 px-4">
       <Card className="w-full max-w-sm">
-        <CardHeader>
-          <CardTitle className="text-xl">Adriana Festas</CardTitle>
+        <CardHeader className="items-center text-center">
+          <Image
+            src="/images/logo-badge.png"
+            alt="Adriana Maia Festas"
+            width={72}
+            height={72}
+            className="mb-2 rounded-full"
+          />
+          <CardTitle className="text-xl">Adriana Maia Festas</CardTitle>
           <CardDescription>Entre com seu usuário e senha</CardDescription>
         </CardHeader>
         <CardContent>

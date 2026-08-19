@@ -14,7 +14,7 @@ const figtree = Figtree({
 });
 
 export const metadata: Metadata = {
-  title: "Adriana Festas - Gestão",
+  title: "Adriana Maia Festas - Gestão",
   description: "Plataforma de gestão para decoração de festas",
 };
 
