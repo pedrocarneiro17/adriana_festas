@@ -10,7 +10,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     where: { id },
     include: {
       cliente: true,
-      orcamento: true,
+      orcamento: { include: { itens: { include: { produto: true } } } },
       evento: true,
     },
   });

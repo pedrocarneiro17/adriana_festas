@@ -1,12 +1,15 @@
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { formatDate } from "@/lib/utils";
+import { BRAND, PdfBrandHeader, PdfBrandFooter, registerBrandFonts } from "./brand";
+
+registerBrandFonts();
 
 const styles = StyleSheet.create({
-  page: { padding: 32, fontSize: 10, fontFamily: "Helvetica" },
-  title: { fontSize: 18, marginBottom: 4, color: "#be123c" },
+  page: { paddingHorizontal: 32, paddingBottom: 32, fontSize: 10, fontFamily: "Helvetica" },
+  title: { fontFamily: "Jost", fontWeight: 600, fontSize: 16, marginBottom: 4, color: BRAND.green },
   subtitle: { fontSize: 10, marginBottom: 16, color: "#6b7280" },
   section: { marginBottom: 14 },
-  sectionTitle: { fontSize: 12, fontWeight: 700, marginBottom: 6 },
+  sectionTitle: { fontFamily: "Jost", fontWeight: 600, fontSize: 11, marginBottom: 6, color: BRAND.green },
   row: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#e5e7eb", paddingVertical: 4 },
   headerRow: { flexDirection: "row", backgroundColor: "#f3f4f6", paddingVertical: 4, fontWeight: 700 },
   colCheck: { width: 20 },
@@ -17,7 +20,6 @@ const styles = StyleSheet.create({
   taskTitle: { fontSize: 10, fontWeight: 700, marginBottom: 3 },
   taskItemRow: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 2, paddingLeft: 8 },
   empty: { fontSize: 9, color: "#9ca3af" },
-  footer: { marginTop: 24, fontSize: 8, color: "#9ca3af" },
 });
 
 type ChecklistEventoPdfProps = {
@@ -41,7 +43,9 @@ export default function ChecklistEventoPdf({ evento }: ChecklistEventoPdfProps) 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <Text style={styles.title}>Checklist do Evento · Adriana Festas</Text>
+        <PdfBrandHeader variant="green" />
+
+        <Text style={styles.title}>Checklist do Evento</Text>
         <Text style={styles.subtitle}>
           {evento.nome || evento.contrato.cliente.nome} · {evento.contrato.cliente.nome} · {formatDate(evento.data)}
           {evento.horario ? ` · ${evento.horario}` : ""}
@@ -101,7 +105,7 @@ export default function ChecklistEventoPdf({ evento }: ChecklistEventoPdfProps) 
           {evento.tarefas.length === 0 && <Text style={styles.empty}>Nenhuma tarefa vinculada.</Text>}
         </View>
 
-        <Text style={styles.footer}>Documento gerado automaticamente pelo sistema de gestão Adriana Festas — para uso da equipe de execução.</Text>
+        <PdfBrandFooter />
       </Page>
     </Document>
   );

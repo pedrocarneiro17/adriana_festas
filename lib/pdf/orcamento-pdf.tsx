@@ -1,22 +1,22 @@
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { formatBRL, formatDate } from "@/lib/utils";
+import { BRAND, PdfBrandHeader, PdfBrandFooter, registerBrandFonts } from "./brand";
+
+registerBrandFonts();
 
 const styles = StyleSheet.create({
-  page: { padding: 32, fontSize: 10, fontFamily: "Helvetica" },
-  title: { fontSize: 18, marginBottom: 4, color: "#be123c" },
+  page: { paddingHorizontal: 32, paddingBottom: 32, fontSize: 10, fontFamily: "Helvetica" },
+  title: { fontFamily: "Jost", fontWeight: 600, fontSize: 16, marginBottom: 4, color: BRAND.wine },
   subtitle: { fontSize: 10, marginBottom: 16, color: "#6b7280" },
   section: { marginBottom: 12 },
-  sectionTitle: { fontSize: 12, fontWeight: 700, marginBottom: 6 },
+  sectionTitle: { fontFamily: "Jost", fontWeight: 600, fontSize: 11, marginBottom: 6, color: BRAND.wine },
   row: { flexDirection: "row", borderBottomWidth: 1, borderBottomColor: "#e5e7eb", paddingVertical: 4 },
   headerRow: { flexDirection: "row", backgroundColor: "#f3f4f6", paddingVertical: 4, fontWeight: 700 },
   colProduto: { flex: 3 },
   colQtd: { flex: 1, textAlign: "right" },
-  colValor: { flex: 1.5, textAlign: "right" },
-  colSubtotal: { flex: 1.5, textAlign: "right" },
   totalRow: { flexDirection: "row", justifyContent: "flex-end", marginTop: 8 },
   totalLabel: { fontSize: 12, fontWeight: 700, marginRight: 8 },
-  totalValue: { fontSize: 12, fontWeight: 700, color: "#be123c" },
-  footer: { marginTop: 24, fontSize: 8, color: "#9ca3af" },
+  totalValue: { fontFamily: "Jost", fontWeight: 600, fontSize: 13, color: BRAND.wine },
 });
 
 type OrcamentoPdfProps = {
@@ -28,7 +28,7 @@ type OrcamentoPdfProps = {
     total: unknown;
     observacoes: string | null;
     cliente: { nome: string; telefone: string | null; endereco: string | null };
-    itens: { produto: { nome: string }; quantidade: unknown; valorUnitarioCongelado: unknown; subtotal: unknown }[];
+    itens: { produto: { nome: string }; quantidade: unknown }[];
   };
 };
 
@@ -36,7 +36,9 @@ export default function OrcamentoPdf({ orcamento }: OrcamentoPdfProps) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <Text style={styles.title}>Orçamento · Adriana Festas</Text>
+        <PdfBrandHeader variant="wine" />
+
+        <Text style={styles.title}>Orçamento</Text>
         <Text style={styles.subtitle}>
           Emitido em {formatDate(orcamento.dataCriacao)}
           {orcamento.validadeAte ? ` · Válido até ${formatDate(orcamento.validadeAte)}` : ""}
@@ -54,15 +56,11 @@ export default function OrcamentoPdf({ orcamento }: OrcamentoPdfProps) {
           <View style={styles.headerRow}>
             <Text style={styles.colProduto}>Produto</Text>
             <Text style={styles.colQtd}>Qtd</Text>
-            <Text style={styles.colValor}>Valor unit.</Text>
-            <Text style={styles.colSubtotal}>Subtotal</Text>
           </View>
           {orcamento.itens.map((item, idx) => (
             <View style={styles.row} key={idx}>
               <Text style={styles.colProduto}>{item.produto.nome}</Text>
               <Text style={styles.colQtd}>{String(item.quantidade)}</Text>
-              <Text style={styles.colValor}>{formatBRL(String(item.valorUnitarioCongelado))}</Text>
-              <Text style={styles.colSubtotal}>{formatBRL(String(item.subtotal))}</Text>
             </View>
           ))}
         </View>
@@ -83,7 +81,7 @@ export default function OrcamentoPdf({ orcamento }: OrcamentoPdfProps) {
           </View>
         )}
 
-        <Text style={styles.footer}>Documento gerado automaticamente pelo sistema de gestão Adriana Festas.</Text>
+        <PdfBrandFooter />
       </Page>
     </Document>
   );
