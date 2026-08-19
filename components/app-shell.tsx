@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -116,20 +117,18 @@ export default function AppShell({
             <ChevronsLeft className="h-3.5 w-3.5" strokeWidth={2.75} />
           )}
         </button>
-        <div className="flex flex-col gap-0.5 p-5">
-          {collapsed ? (
-            <span className="font-[family-name:var(--font-heading)] font-normal text-lg text-[var(--color-accent-700)]">
-              AF
+        <div className="flex flex-col gap-2 p-5">
+          <Image
+            src="/images/logo-badge.png"
+            alt="Adriana Maia Festas"
+            width={collapsed ? 40 : 56}
+            height={collapsed ? 40 : 56}
+            className="rounded-full"
+          />
+          {!collapsed && (
+            <span className="text-xs text-sand-600">
+              {nome} · {papel === "admin" ? "Administrador(a)" : "Funcionário(a)"}
             </span>
-          ) : (
-            <>
-              <span className="font-[family-name:var(--font-heading)] font-normal text-lg text-[var(--color-accent-700)]">
-                Adriana Festas
-              </span>
-              <span className="text-xs text-sand-600">
-                {nome} · {papel === "admin" ? "Administrador(a)" : "Funcionário(a)"}
-              </span>
-            </>
           )}
         </div>
         <nav className="flex-1 space-y-1 p-3">{navItems()}</nav>
@@ -151,7 +150,7 @@ export default function AppShell({
       {/* Mobile topbar */}
       <header className="fixed inset-x-0 top-0 z-40 flex h-14 items-center justify-between bg-[var(--color-surface)] px-4 md:hidden">
         <span className="font-[family-name:var(--font-heading)] font-normal text-base text-[var(--color-accent-700)]">
-          Adriana Festas
+          Adriana Maia Festas
         </span>
         <button onClick={() => setMobileOpen(true)} aria-label="Abrir menu">
           <Menu className="h-6 w-6 text-sand-700" strokeWidth={2.75} />
@@ -164,9 +163,7 @@ export default function AppShell({
           <div className="absolute inset-0 bg-black/40" onClick={() => setMobileOpen(false)} />
           <div className="absolute inset-y-0 left-0 flex w-72 flex-col gap-0.5 bg-[var(--color-surface)] p-5">
             <div className="mb-4 flex items-center justify-between">
-              <span className="font-[family-name:var(--font-heading)] font-normal text-lg text-[var(--color-accent-700)]">
-                Adriana Festas
-              </span>
+              <Image src="/images/logo-badge.png" alt="Adriana Maia Festas" width={48} height={48} className="rounded-full" />
               <button onClick={() => setMobileOpen(false)} aria-label="Fechar menu">
                 <X className="h-5 w-5 text-sand-700" />
               </button>
