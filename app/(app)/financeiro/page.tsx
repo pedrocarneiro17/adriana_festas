@@ -61,7 +61,11 @@ export default async function FinanceiroPage({
   });
 
   const comSaldoPendente = eventosComFinanceiro.filter((e) => e.saldo > 0);
-  const listaExibida = somenteAberto ? comSaldoPendente : eventosComFinanceiro;
+  // No filtro "Em aberto" a ordem é invertida: mais antigo primeiro, mais
+  // novo por último (nos demais, mantém mais novo primeiro).
+  const listaExibida = somenteAberto
+    ? [...comSaldoPendente].sort((a, b) => a.data.getTime() - b.data.getTime())
+    : eventosComFinanceiro;
 
   const totalContratado = listaExibida.reduce((acc, e) => acc + e.total, 0);
   const totalRecebido = listaExibida.reduce((acc, e) => acc + e.pago, 0);
