@@ -82,7 +82,12 @@ export default async function EventoDetalhePage({ params }: { params: Promise<{ 
           <Badge variant={statusVariant[evento.status]}>{evento.status.replace("_", " ")}</Badge>
           <Button asChild variant="outline" size="sm">
             <a href={`/api/contratos/${evento.contrato.id}/pdf`} target="_blank">
-              <FileDown className="h-4 w-4" /> PDF
+              <FileDown className="h-4 w-4" /> PDF contrato
+            </a>
+          </Button>
+          <Button asChild variant="outline" size="sm">
+            <a href={`/api/eventos/${evento.id}/pdf`} target="_blank">
+              <FileDown className="h-4 w-4" /> PDF checklist
             </a>
           </Button>
         </div>
