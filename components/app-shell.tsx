@@ -34,15 +34,7 @@ const links = [
 
 const COLLAPSE_KEY = "sidebar-collapsed";
 
-export default function AppShell({
-  nome,
-  papel,
-  children,
-}: {
-  nome: string;
-  papel: string;
-  children: React.ReactNode;
-}) {
+export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
   const [collapsed, setCollapsed] = useState(false);
@@ -125,11 +117,6 @@ export default function AppShell({
             height={collapsed ? 40 : 56}
             className="rounded-full"
           />
-          {!collapsed && (
-            <span className="text-xs text-sand-600">
-              {nome} · {papel === "admin" ? "Administrador(a)" : "Funcionário(a)"}
-            </span>
-          )}
         </div>
         <nav className="flex-1 space-y-1 p-3">{navItems()}</nav>
         <div className="flex flex-col gap-1 p-3">
@@ -168,9 +155,6 @@ export default function AppShell({
                 <X className="h-5 w-5 text-sand-700" />
               </button>
             </div>
-            <span className="mb-3 text-xs text-sand-600">
-              {nome} · {papel === "admin" ? "Administrador(a)" : "Funcionário(a)"}
-            </span>
             <nav className="flex-1 space-y-1">{navItems(() => setMobileOpen(false))}</nav>
             <button
               onClick={handleLogout}
