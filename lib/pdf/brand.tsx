@@ -1,9 +1,13 @@
+import fs from "fs";
 import path from "path";
-import { Font, View, Text, Svg, Path, StyleSheet } from "@react-pdf/renderer";
+import { Font, View, Text, Image, StyleSheet } from "@react-pdf/renderer";
 
 // Identidade visual Adriana Maia Festas — extraída da apresentação de marca.
-// Fontes reais da marca (Amenti / Autumn Wind) não estão disponíveis como
-// arquivo; usamos substitutas gratuitas de visual próximo (Jost / Alex Brush).
+// A logo (public/images/logo-wine.png / logo-green.png) é a arte oficial,
+// recortada a partir dos arquivos enviados. Fontes reais da marca
+// (Amenti / Autumn Wind) não estão disponíveis como arquivo; usamos
+// substitutas gratuitas de visual próximo (Jost / Alex Brush) só no corpo
+// do texto — a logo em si já traz a tipografia real, embutida na imagem.
 export const BRAND = {
   wine: "#581922",
   green: "#415D51",
@@ -48,51 +52,27 @@ export function registerBrandFonts() {
 const headerStyles = StyleSheet.create({
   wine: { backgroundColor: BRAND.wine },
   green: { backgroundColor: BRAND.green },
-  band: { paddingVertical: 28, alignItems: "center", marginBottom: 20 },
-  wordmark: {
-    fontFamily: "Jost",
-    fontWeight: 500,
-    fontSize: 20,
-    letterSpacing: 4,
-    color: BRAND.white,
-    marginTop: 6,
-  },
-  tagline: {
-    fontFamily: "Alex Brush",
-    fontSize: 20,
-    color: BRAND.white,
-    marginTop: -4,
-  },
+  band: { paddingVertical: 18, alignItems: "center", marginBottom: 20 },
+  logo: { width: 200, height: 100 },
 });
 
-// Monograma "A" com o traço curvo característico da marca, redesenhado em
-// vetor (não é um clone exato do arquivo original, que não temos disponível).
-function Monograma({ size = 44 }: { size?: number }) {
-  return (
-    <Svg width={size} height={size} viewBox="0 0 100 100">
-      <Path
-        d="M50 10 L78 88 M50 10 L22 88 M32 62 H68"
-        stroke={BRAND.white}
-        strokeWidth={4}
-        fill="none"
-      />
-      <Path
-        d="M8 46 C 30 66, 46 66, 62 50"
-        stroke={BRAND.white}
-        strokeWidth={2.5}
-        fill="none"
-      />
-    </Svg>
-  );
+const logoSources: Partial<Record<"wine" | "green", { data: Buffer; format: "png" }>> = {};
+
+function getLogoSource(variant: "wine" | "green") {
+  if (!logoSources[variant]) {
+    const imagesDir = path.join(process.cwd(), "public", "images");
+    const data = fs.readFileSync(path.join(imagesDir, `logo-${variant}.png`));
+    logoSources[variant] = { data, format: "png" };
+  }
+  return logoSources[variant]!;
 }
 
 export function PdfBrandHeader({ variant = "wine" }: { variant?: "wine" | "green" }) {
   registerBrandFonts();
   return (
     <View style={[headerStyles.band, variant === "wine" ? headerStyles.wine : headerStyles.green]}>
-      <Monograma />
-      <Text style={headerStyles.wordmark}>ADRIANA MAIA</Text>
-      <Text style={headerStyles.tagline}>festas</Text>
+      {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image, não é <img> do DOM */}
+      <Image src={getLogoSource(variant)} style={headerStyles.logo} />
     </View>
   );
 }
