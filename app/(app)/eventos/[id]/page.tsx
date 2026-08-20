@@ -120,8 +120,12 @@ export default async function EventoDetalhePage({ params }: { params: Promise<{ 
             <CardTitle>Assinatura</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-3 text-sm">
-            <AssinaturaToggle id={evento.contrato.id} assinado={evento.contrato.assinado} readOnly={readOnly} />
-            {evento.contrato.dataAssinatura && <p>Assinado em {formatDate(evento.contrato.dataAssinatura)}</p>}
+            <AssinaturaToggle
+              id={evento.contrato.id}
+              assinado={evento.contrato.assinado}
+              dataAssinatura={evento.contrato.dataAssinatura}
+              readOnly={readOnly}
+            />
             <SomenteDecoracaoToggle
               id={evento.contrato.id}
               somenteDecoracao={evento.contrato.somenteDecoracao}

@@ -18,6 +18,14 @@ export async function assinarContrato(id: string, assinado: boolean) {
   await revalidateEventoDoContrato(id);
 }
 
+export async function atualizarDataAssinatura(id: string, data: string) {
+  await prisma.contrato.update({
+    where: { id },
+    data: { dataAssinatura: new Date(`${data}T12:00:00.000Z`) },
+  });
+  await revalidateEventoDoContrato(id);
+}
+
 export async function atualizarCondicoesPagamento(id: string, condicoesPagamento: string) {
   await prisma.contrato.update({ where: { id }, data: { condicoesPagamento } });
   await revalidateEventoDoContrato(id);
