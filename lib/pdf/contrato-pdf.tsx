@@ -92,7 +92,7 @@ export default function ContratoPdf({ contrato }: ContratoPdfProps) {
 
         <Text style={styles.clausula}>CLÁUSULA 3ª – DO PREÇO E DAS CONDIÇÕES DE PAGAMENTO</Text>
         <Text>Valor total: {formatBRL(String(contrato.orcamento.total))}</Text>
-        <Text>Forma de pagamento: {contrato.condicoesPagamento || "a combinar"}</Text>
+        <Text>Forma de pagamento: {contrato.condicoesPagamento || "30% de entrada e restante a combinar"}</Text>
 
         <Text style={styles.clausula}>CLÁUSULA 4ª – DAS SANÇÕES</Text>
         <Text style={styles.bold}>Em caso de desistência:</Text>
