@@ -23,6 +23,11 @@ export async function atualizarCondicoesPagamento(id: string, condicoesPagamento
   await revalidateEventoDoContrato(id);
 }
 
+export async function atualizarSomenteDecoracao(id: string, somenteDecoracao: boolean) {
+  await prisma.contrato.update({ where: { id }, data: { somenteDecoracao } });
+  await revalidateEventoDoContrato(id);
+}
+
 // Ao cancelar, é possível informar uma multa contratual. O valor original
 // combinado (orcamento.total) nunca é sobrescrito — a multa fica guardada à
 // parte em contrato.valorMulta, e é esse valor que passa a valer pra

@@ -124,6 +124,8 @@ model Contrato {
   clienteId             String         @map("cliente_id")
   status                String         @default("pendente")
   condicoesPagamento    String?        @map("condicoes_pagamento")
+  // Quando marcado, o título do contrato omite "E CERIMONIAL".
+  somenteDecoracao      Boolean        @default(false) @map("somente_decoracao")
   assinado              Boolean        @default(false)
   dataAssinatura        DateTime?      @map("data_assinatura")
   // Preenchido só quando o evento é cancelado com multa contratual — o valor

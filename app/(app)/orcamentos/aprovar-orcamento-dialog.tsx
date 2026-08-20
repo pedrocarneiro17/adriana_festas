@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -30,7 +31,8 @@ export default function AprovarOrcamentoDialog({
   const [dataEvento, setDataEvento] = useState(validadeAte ?? "");
   const [horario, setHorario] = useState("");
   const [local, setLocal] = useState("");
-  const [condicoesPagamento, setCondicoesPagamento] = useState("");
+  const [condicoesPagamento, setCondicoesPagamento] = useState("30% de entrada e restante a combinar");
+  const [somenteDecoracao, setSomenteDecoracao] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -50,6 +52,7 @@ export default function AprovarOrcamentoDialog({
         horario,
         local,
         condicoesPagamento: condicoesPagamento || undefined,
+        somenteDecoracao,
       })
     );
   }
@@ -91,6 +94,14 @@ export default function AprovarOrcamentoDialog({
           <div className="flex flex-col gap-1.5">
             <Label>Condições de pagamento (opcional)</Label>
             <Textarea value={condicoesPagamento} onChange={(e) => setCondicoesPagamento(e.target.value)} rows={2} />
+          </div>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="somente-decoracao"
+              checked={somenteDecoracao}
+              onCheckedChange={(checked) => setSomenteDecoracao(checked === true)}
+            />
+            <Label htmlFor="somente-decoracao">Somente decoração (sem cerimonial)</Label>
           </div>
           <DialogFooter>
             <Button type="submit" disabled={isPending}>

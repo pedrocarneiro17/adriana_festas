@@ -201,6 +201,7 @@ export type AprovarOrcamentoInput = {
   horario?: string;
   local?: string;
   condicoesPagamento?: string;
+  somenteDecoracao?: boolean;
 };
 
 export async function aprovarOrcamento(orcamentoId: string, input: AprovarOrcamentoInput) {
@@ -238,6 +239,7 @@ export async function aprovarOrcamento(orcamentoId: string, input: AprovarOrcame
         clienteId: orcamento.clienteId,
         status: "ativo",
         condicoesPagamento: input.condicoesPagamento || null,
+        somenteDecoracao: input.somenteDecoracao ?? false,
       },
     });
 

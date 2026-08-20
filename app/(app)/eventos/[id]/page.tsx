@@ -10,6 +10,7 @@ import { FileDown, ArrowLeft } from "lucide-react";
 import NomeEventoForm from "../nome-evento-form";
 import AssinaturaToggle from "../assinatura-toggle";
 import CondicoesPagamentoForm from "../condicoes-pagamento-form";
+import SomenteDecoracaoToggle from "../somente-decoracao-toggle";
 import EventoAcoes from "../evento-acoes";
 import MoverDataForm from "../mover-data-form";
 import RegistrarPagamentoDialog from "../../financeiro/registrar-pagamento-dialog";
@@ -121,6 +122,11 @@ export default async function EventoDetalhePage({ params }: { params: Promise<{ 
           <CardContent className="flex flex-col gap-3 text-sm">
             <AssinaturaToggle id={evento.contrato.id} assinado={evento.contrato.assinado} readOnly={readOnly} />
             {evento.contrato.dataAssinatura && <p>Assinado em {formatDate(evento.contrato.dataAssinatura)}</p>}
+            <SomenteDecoracaoToggle
+              id={evento.contrato.id}
+              somenteDecoracao={evento.contrato.somenteDecoracao}
+              readOnly={readOnly}
+            />
           </CardContent>
         </Card>
       </div>

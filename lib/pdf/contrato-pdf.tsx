@@ -27,6 +27,7 @@ type ContratoPdfProps = {
     id: string;
     criadoEm: Date;
     condicoesPagamento: string | null;
+    somenteDecoracao: boolean;
     cliente: { nome: string; telefone: string | null; endereco: string | null; documento: string | null };
     orcamento: { total: unknown; itens: { produto: { nome: string }; quantidade: unknown }[] };
     evento: { data: Date; horario: string | null; local: string | null } | null;
@@ -39,7 +40,9 @@ export default function ContratoPdf({ contrato }: ContratoPdfProps) {
       <Page size="A4" style={styles.page}>
         <PdfBrandHeader variant="wine" />
 
-        <Text style={styles.title}>PRESTAÇÃO DE SERVIÇOS DE DECORAÇÃO E CERIMONIAL</Text>
+        <Text style={styles.title}>
+          PRESTAÇÃO DE SERVIÇOS DE DECORAÇÃO{contrato.somenteDecoracao ? "" : " E CERIMONIAL"}
+        </Text>
 
         <View style={styles.section}>
           <Text><Text style={styles.bold}>CONTRATADA:</Text> {BUSINESS.razaoSocial}, {BUSINESS.endereco}, portadora do RG {BUSINESS.rg} e CPF: {BUSINESS.cpf}.</Text>
@@ -89,28 +92,19 @@ export default function ContratoPdf({ contrato }: ContratoPdfProps) {
 
         <Text style={styles.clausula}>CLÁUSULA 3ª – DO PREÇO E DAS CONDIÇÕES DE PAGAMENTO</Text>
         <Text>Valor total: {formatBRL(String(contrato.orcamento.total))}</Text>
-        <Text>Condições de pagamento: {contrato.condicoesPagamento || "a combinar"}</Text>
+        <Text>Forma de pagamento: {contrato.condicoesPagamento || "a combinar"}</Text>
 
         <Text style={styles.clausula}>CLÁUSULA 4ª – DAS SANÇÕES</Text>
+        <Text style={styles.bold}>Em caso de desistência:</Text>
+        <Text>Até 6 meses para o evento: a contratada estornará 50% do valor pago até a data da desistência.</Text>
+        <Text>Até 3 meses para o evento: a contratada estornará 30% do valor pago até a data da desistência.</Text>
         <Text>
-          Ficam estipuladas as seguintes condições caso ocorra desistência por motivo de força maior, de forma
-          comprovada:
-        </Text>
-        <Text>a) Até 06 (seis) meses anteriores ao evento: devolução de 50% da importância paga.</Text>
-        <Text>b) Até 04 (quatro) meses anteriores ao evento: devolução de 40% da importância paga.</Text>
-        <Text>c) Até 02 (dois) meses anteriores ao evento: devolução de 20% da importância paga.</Text>
-        <Text>
-          d) No prazo inferior a esse, não será devolvido nenhum valor, e a contratante estará sujeita à
-          cobrança de valor adicional devido a custos da execução do contrato. Fica a critério da contratante
-          remarcar uma nova data, mediante disponibilidade de agenda.
+          Em caso de necessidade de reagendamento do evento por causa de morte, doença ou motivo de força
+          maior, remarcaremos uma nova data diante da disponibilidade da contratada.
         </Text>
         <Text style={styles.bold}>
-          Caso a contratante desista de promover/cancele o evento por mera vontade, não será reembolsado
-          nenhum valor.
-        </Text>
-        <Text style={styles.bold}>
-          Caso ocorra quebra de contrato por parte da contratada, a mesma se compromete a devolver todo o
-          valor já pago.
+          Caso o contratante desista de promover/cancele o evento nos 3 meses que o antecedem, não será
+          reembolsado nenhum percentual do valor já pago.
         </Text>
 
         <Text style={styles.clausula}>CLÁUSULA 5ª – DAS DISPOSIÇÕES FINAIS</Text>
