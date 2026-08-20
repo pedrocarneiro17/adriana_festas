@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
+import { DatePicker } from "@/components/ui/date-picker";
 import { Label } from "@/components/ui/label";
 import { toDateInputValue } from "@/lib/utils";
 import { assinarContrato, atualizarDataAssinatura } from "@/lib/actions/contratos";
@@ -33,16 +33,11 @@ export default function AssinaturaToggle({
       </div>
       {assinado && (
         <div className="flex items-center gap-2 pl-6">
-          <Label htmlFor={`data-assinatura-${id}`} className="text-sm text-sand-600 font-normal">
-            Data:
-          </Label>
-          <Input
-            id={`data-assinatura-${id}`}
-            type="date"
-            defaultValue={toDateInputValue(dataAssinatura)}
+          <Label className="text-sm text-sand-600 font-normal">Data:</Label>
+          <DatePicker
+            value={toDateInputValue(dataAssinatura)}
             disabled={isPending || readOnly}
-            onChange={(e) => e.target.value && startTransition(() => atualizarDataAssinatura(id, e.target.value))}
-            className="h-8 w-40"
+            onChange={(value) => startTransition(() => atualizarDataAssinatura(id, value))}
           />
         </div>
       )}
