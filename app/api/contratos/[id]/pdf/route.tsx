@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { renderToBuffer } from "@react-pdf/renderer";
+import sharp from "sharp";
 import { prisma } from "@/lib/prisma";
 import ContratoPdf from "@/lib/pdf/contrato-pdf";
 
@@ -11,7 +12,7 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     include: {
       cliente: true,
       orcamento: { include: { itens: { include: { produto: true } } } },
-      evento: true,
+      evento: { include: { referencias: { orderBy: { criadoEm: "desc" } } } },
     },
   });
 
@@ -19,7 +20,16 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     return NextResponse.json({ error: "Contrato não encontrado" }, { status: 404 });
   }
 
-  const buffer = await renderToBuffer(<ContratoPdf contrato={contrato} />);
+  // Normaliza cada referência pra JPEG — o formato de origem pode ser
+  // qualquer um que o navegador aceitar no upload, mas o react-pdf só lida
+  // com png/jpg, e isso também mantém o PDF leve.
+  const referencias = await Promise.all(
+    (contrato.evento?.referencias ?? []).map(async (r) => ({
+      buffer: await sharp(r.dados).rotate().resize({ width: 900, withoutEnlargement: true }).jpeg({ quality: 78 }).toBuffer(),
+    }))
+  );
+
+  const buffer = await renderToBuffer(<ContratoPdf contrato={contrato} referencias={referencias} />);
 
   return new NextResponse(new Uint8Array(buffer), {
     headers: {

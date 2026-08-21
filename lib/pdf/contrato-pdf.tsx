@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Document, Page, Text, View, Image, StyleSheet } from "@react-pdf/renderer";
 import { formatBRL, formatDate } from "@/lib/utils";
 import { BRAND, BUSINESS, PdfBrandHeader, PdfBrandFooter, registerBrandFonts } from "./brand";
 
@@ -20,6 +20,8 @@ const styles = StyleSheet.create({
   signBlock: { width: "45%", alignItems: "center" },
   signLine: { borderTopWidth: 1, borderTopColor: "#000", width: "100%", marginBottom: 4, marginTop: 30 },
   paymentBox: { marginTop: 20, flexDirection: "row", justifyContent: "space-between" },
+  refGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" },
+  refImage: { width: "48%", height: 170, marginBottom: 10, objectFit: "cover", borderRadius: 4 },
 });
 
 type ContratoPdfProps = {
@@ -32,9 +34,10 @@ type ContratoPdfProps = {
     orcamento: { total: unknown; itens: { produto: { nome: string }; quantidade: unknown }[] };
     evento: { data: Date; horario: string | null; local: string | null } | null;
   };
+  referencias?: { buffer: Buffer }[];
 };
 
-export default function ContratoPdf({ contrato }: ContratoPdfProps) {
+export default function ContratoPdf({ contrato, referencias = [] }: ContratoPdfProps) {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -146,6 +149,20 @@ export default function ContratoPdf({ contrato }: ContratoPdfProps) {
 
         <PdfBrandFooter />
       </Page>
+
+      {referencias.length > 0 && (
+        <Page size="A4" style={styles.page}>
+          <PdfBrandHeader variant="wine" />
+          <Text style={styles.title}>REFERÊNCIAS</Text>
+          <View style={styles.refGrid}>
+            {referencias.map((r, idx) => (
+              // eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image, não é <img> do DOM
+              <Image key={idx} src={{ data: r.buffer, format: "jpg" }} style={styles.refImage} />
+            ))}
+          </View>
+          <PdfBrandFooter />
+        </Page>
+      )}
     </Document>
   );
 }
