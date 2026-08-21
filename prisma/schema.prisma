@@ -156,8 +156,26 @@ model Evento {
   checklistMateriais ChecklistMateriais?
   tarefas           Tarefa[]
   despesas          Despesa[]
+  referencias       ReferenciaImagem[]
 
   @@map("eventos")
+}
+
+// Fotos de referência anexadas ao evento (moodboard/inspiração enviada pela
+// cliente). Guardadas como bytes direto no banco — sem depender de storage
+// externo (S3/Cloudinary) nem de volume persistente no Railway.
+model ReferenciaImagem {
+  id          String   @id @default(cuid())
+  eventoId    String   @map("evento_id")
+  nomeArquivo String   @map("nome_arquivo")
+  contentType String   @map("content_type")
+  tamanho     Int
+  dados       Bytes
+  criadoEm    DateTime @default(now()) @map("criado_em")
+
+  evento Evento @relation(fields: [eventoId], references: [id], onDelete: Cascade)
+
+  @@map("referencias_imagens")
 }
 
 // Bloqueia um único dia (dataFim null) ou um período (dataFim preenchida, inclusive).

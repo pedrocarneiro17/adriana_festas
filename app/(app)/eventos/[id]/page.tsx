@@ -20,6 +20,7 @@ import NovaDespesaEventoDialog from "../nova-despesa-evento-dialog";
 import DespesaEventoRow from "../despesa-evento-row";
 import TarefaCard from "../../agenda/tarefa-card";
 import NovaTarefaDialog from "../../agenda/nova-tarefa-dialog";
+import ReferenciasEvento from "../referencias-evento";
 
 const statusVariant: Record<string, "default" | "secondary" | "success" | "warning" | "destructive"> = {
   agendado: "default",
@@ -43,6 +44,7 @@ export default async function EventoDetalhePage({ params }: { params: Promise<{ 
       checklistMateriais: { include: { itens: true } },
       tarefas: { include: { itens: true }, orderBy: { data: "asc" } },
       despesas: { orderBy: { data: "desc" } },
+      referencias: { orderBy: { criadoEm: "desc" }, select: { id: true, nomeArquivo: true } },
     },
   });
 
@@ -307,6 +309,15 @@ export default async function EventoDetalhePage({ params }: { params: Promise<{ 
         contratoId={evento.contrato.id}
         status={evento.status}
       />
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Referências</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <ReferenciasEvento eventoId={evento.id} referencias={evento.referencias} readOnly={readOnly} />
+        </CardContent>
+      </Card>
     </div>
   );
 }
