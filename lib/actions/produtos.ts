@@ -12,6 +12,7 @@ export async function criarProduto(data: {
   nome: string;
   valorUnitario: number;
   categoria?: string;
+  descricao?: string;
   unidade: string;
   materiais: ProdutoMaterialInput[];
 }) {
@@ -20,6 +21,7 @@ export async function criarProduto(data: {
       nome: data.nome,
       valorUnitario: data.valorUnitario,
       categoria: data.categoria || null,
+      descricao: data.descricao?.trim() || null,
       unidade: data.unidade,
       materiais: {
         create: data.materiais.map((m) => ({
@@ -38,6 +40,7 @@ export async function atualizarProduto(
     nome: string;
     valorUnitario: number;
     categoria?: string;
+    descricao?: string;
     unidade: string;
     materiais: ProdutoMaterialInput[];
   }
@@ -50,6 +53,7 @@ export async function atualizarProduto(
         nome: data.nome,
         valorUnitario: data.valorUnitario,
         categoria: data.categoria || null,
+        descricao: data.descricao?.trim() || null,
         unidade: data.unidade,
         materiais: {
           create: data.materiais.map((m) => ({

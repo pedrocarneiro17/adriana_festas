@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Dialog,
@@ -23,6 +24,7 @@ type ProdutoExistente = {
   nome: string;
   valorUnitario: string;
   categoria: string | null;
+  descricao: string | null;
   unidade: string;
   materiais: { materialId: string; quantidadeNecessaria: unknown }[];
 };
@@ -42,6 +44,7 @@ export default function ProdutoFormDialog({
   const [nome, setNome] = useState(produto?.nome ?? "");
   const [valorUnitario, setValorUnitario] = useState(Number(produto?.valorUnitario ?? 0));
   const [categoria, setCategoria] = useState(produto?.categoria ?? "");
+  const [descricao, setDescricao] = useState(produto?.descricao ?? "");
   const [unidade, setUnidade] = useState(produto?.unidade ?? "un");
   const [materiais, setMateriais] = useState<ProdutoMaterialInput[]>(
     produto?.materiais.map((m) => ({
@@ -70,6 +73,7 @@ export default function ProdutoFormDialog({
       nome,
       valorUnitario,
       categoria,
+      descricao,
       unidade,
       materiais: materiais.filter((m) => m.materialId),
     };
@@ -81,6 +85,7 @@ export default function ProdutoFormDialog({
         setNome("");
         setValorUnitario(0);
         setCategoria("");
+        setDescricao("");
         setUnidade("un");
         setMateriais([]);
       }
@@ -122,6 +127,15 @@ export default function ProdutoFormDialog({
             <div className="col-span-2 flex flex-col gap-1.5">
               <Label>Categoria</Label>
               <Input value={categoria} onChange={(e) => setCategoria(e.target.value)} placeholder="Ex: Decoração de mesa" />
+            </div>
+            <div className="col-span-2 flex flex-col gap-1.5">
+              <Label>Descrição (opcional)</Label>
+              <Textarea
+                value={descricao}
+                onChange={(e) => setDescricao(e.target.value)}
+                rows={3}
+                placeholder="Detalhes do produto, o que está incluso, medidas..."
+              />
             </div>
           </div>
 

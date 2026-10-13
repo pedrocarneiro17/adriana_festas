@@ -42,7 +42,10 @@ export default async function ProdutosPage() {
           <TableBody>
             {produtos.map((p) => (
               <TableRow key={p.id}>
-                <TableCell className="font-medium">{p.nome}</TableCell>
+                <TableCell className="max-w-xs">
+                  <span className="font-medium">{p.nome}</span>
+                  {p.descricao && <p className="line-clamp-2 text-xs text-sand-500">{p.descricao}</p>}
+                </TableCell>
                 <TableCell>{p.categoria || "-"}</TableCell>
                 <TableCell>{formatBRL(p.valorUnitario.toString())}</TableCell>
                 <TableCell>{p.unidade}</TableCell>
@@ -62,6 +65,7 @@ export default async function ProdutosPage() {
                         nome: p.nome,
                         valorUnitario: p.valorUnitario.toString(),
                         categoria: p.categoria,
+                        descricao: p.descricao,
                         unidade: p.unidade,
                         materiais: p.materiais.map((m) => ({
                           materialId: m.materialId,
