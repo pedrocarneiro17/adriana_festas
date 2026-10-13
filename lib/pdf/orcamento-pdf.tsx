@@ -24,6 +24,8 @@ type OrcamentoPdfProps = {
     id: string;
     dataCriacao: Date;
     validadeAte: Date | null;
+    dataEvento: Date | null;
+    localEvento: string | null;
     desconto: unknown;
     total: unknown;
     observacoes: string | null;
@@ -50,6 +52,14 @@ export default function OrcamentoPdf({ orcamento }: OrcamentoPdfProps) {
           {orcamento.cliente.telefone && <Text>Telefone: {orcamento.cliente.telefone}</Text>}
           {orcamento.cliente.endereco && <Text>Endereço: {orcamento.cliente.endereco}</Text>}
         </View>
+
+        {(orcamento.dataEvento || orcamento.localEvento) && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Evento</Text>
+            {orcamento.dataEvento && <Text>Data: {formatDate(orcamento.dataEvento)}</Text>}
+            {orcamento.localEvento && <Text>Local: {orcamento.localEvento}</Text>}
+          </View>
+        )}
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Itens</Text>

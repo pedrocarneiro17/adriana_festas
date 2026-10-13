@@ -20,17 +20,19 @@ import { verificarDataBloqueada } from "@/lib/actions/agenda";
 
 export default function AprovarOrcamentoDialog({
   orcamentoId,
-  validadeAte,
+  dataEvento: dataEventoInicial,
+  local: localInicial,
 }: {
   orcamentoId: string;
-  validadeAte: string | null;
+  dataEvento: string | null;
+  local: string | null;
 }) {
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [nome, setNome] = useState("");
-  const [dataEvento, setDataEvento] = useState(validadeAte ?? "");
+  const [dataEvento, setDataEvento] = useState(dataEventoInicial ?? "");
   const [horario, setHorario] = useState("");
-  const [local, setLocal] = useState("");
+  const [local, setLocal] = useState(localInicial ?? "");
   const [condicoesPagamento, setCondicoesPagamento] = useState("30% de entrada e restante a combinar");
   const [somenteDecoracao, setSomenteDecoracao] = useState(false);
 

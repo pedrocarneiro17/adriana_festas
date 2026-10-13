@@ -30,6 +30,8 @@ type Props = {
     clienteId: string;
     desconto: string;
     validadeAte: string | null;
+    dataEvento: string | null;
+    localEvento: string | null;
     observacoes: string | null;
     itens: { produtoId: string; quantidade: string }[];
   };
@@ -41,6 +43,8 @@ export default function OrcamentoForm({ clientes, produtos, orcamentoId, initial
   const [clienteNovoAtivo, setClienteNovoAtivo] = useState(false);
   const [clienteNovo, setClienteNovo] = useState({ nome: "", telefone: "", endereco: "" });
   const [validadeAte, setValidadeAte] = useState(initial?.validadeAte?.slice(0, 10) ?? "");
+  const [dataEvento, setDataEvento] = useState(initial?.dataEvento?.slice(0, 10) ?? "");
+  const [localEvento, setLocalEvento] = useState(initial?.localEvento ?? "");
   const [desconto, setDesconto] = useState(Number(initial?.desconto ?? 0));
   const [observacoes, setObservacoes] = useState(initial?.observacoes ?? "");
   const [itens, setItens] = useState(
@@ -89,8 +93,8 @@ export default function OrcamentoForm({ clientes, produtos, orcamentoId, initial
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    if (validadeAte) {
-      const bloqueada = await verificarDataBloqueada(validadeAte);
+    if (dataEvento) {
+      const bloqueada = await verificarDataBloqueada(dataEvento);
       if (bloqueada) {
         const continuar = window.confirm(
           `Esta data está marcada como fechada (${bloqueada.motivo || "sem motivo"}). Deseja continuar mesmo assim?`
@@ -103,6 +107,8 @@ export default function OrcamentoForm({ clientes, produtos, orcamentoId, initial
       clienteId: clienteNovoAtivo ? undefined : clienteId,
       clienteNovo: clienteNovoAtivo ? clienteNovo : undefined,
       validadeAte: validadeAte || undefined,
+      dataEvento: dataEvento || undefined,
+      localEvento,
       desconto,
       observacoes,
       itens: itens
@@ -225,7 +231,19 @@ export default function OrcamentoForm({ clientes, produtos, orcamentoId, initial
       <Card>
         <CardContent className="grid grid-cols-2 gap-3 pt-4">
           <div className="flex flex-col gap-1.5">
-            <Label>Validade até</Label>
+            <Label>Data do evento</Label>
+            <Input type="date" value={dataEvento} onChange={(e) => setDataEvento(e.target.value)} />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label>Endereço do evento</Label>
+            <Input
+              value={localEvento}
+              onChange={(e) => setLocalEvento(e.target.value)}
+              placeholder="Local / endereço onde será o evento"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label>Validade do orçamento até</Label>
             <Input type="date" value={validadeAte} onChange={(e) => setValidadeAte(e.target.value)} />
           </div>
           <div className="flex flex-col gap-1.5">

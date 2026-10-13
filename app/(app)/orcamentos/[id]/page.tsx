@@ -35,6 +35,8 @@ export default async function OrcamentoDetalhePage({ params }: { params: Promise
   const podeEditar = orcamento.status !== "aprovado" || orcamento.contrato?.evento?.status !== "concluido";
   const podeAprovar = orcamento.status === "enviado" || orcamento.status === "rascunho";
   const evento = orcamento.contrato?.evento;
+  const dataEvento = evento?.data ?? orcamento.dataEvento;
+  const localEvento = evento ? evento.local : orcamento.localEvento;
 
   return (
     <div className="flex flex-col gap-6">
@@ -43,6 +45,12 @@ export default async function OrcamentoDetalhePage({ params }: { params: Promise
           <h1 className="text-2xl font-bold">Orçamento · {evento?.nome || orcamento.cliente.nome}</h1>
           {evento && <p className="text-sm text-sand-600">{orcamento.cliente.nome}</p>}
           <p className="text-sm text-sand-600">Criado em {formatDate(orcamento.dataCriacao)}</p>
+          {(dataEvento || localEvento) && (
+            <p className="text-sm text-sand-600">
+              Evento:{dataEvento ? ` ${formatDate(dataEvento)}` : ""}
+              {localEvento ? ` · ${localEvento}` : ""}
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <Badge variant={statusVariant[orcamento.status]}>{orcamento.status.replace("_", " ")}</Badge>
@@ -113,7 +121,13 @@ export default async function OrcamentoDetalhePage({ params }: { params: Promise
       )}
 
       <div className="flex flex-wrap gap-3">
-        {podeAprovar && <AprovarOrcamentoDialog orcamentoId={orcamento.id} validadeAte={orcamento.validadeAte?.toISOString().slice(0,10) ?? null} />}
+        {podeAprovar && (
+          <AprovarOrcamentoDialog
+            orcamentoId={orcamento.id}
+            dataEvento={(orcamento.dataEvento ?? orcamento.validadeAte)?.toISOString().slice(0, 10) ?? null}
+            local={orcamento.localEvento}
+          />
+        )}
         {podeEditar && orcamento.status !== "aprovado" && <OrcamentoStatusActions id={orcamento.id} status={orcamento.status} />}
       </div>
     </div>

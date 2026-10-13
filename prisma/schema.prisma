@@ -93,6 +93,10 @@ model Orcamento {
   clienteId   String          @map("cliente_id")
   dataCriacao DateTime        @default(now()) @map("data_criacao")
   validadeAte DateTime?       @map("validade_ate")
+  // Data e endereço do evento já informados no orçamento: preenchem o evento
+  // (e, por consequência, o contrato) automaticamente ao aprovar.
+  dataEvento  DateTime?       @map("data_evento")
+  localEvento String?         @map("local_evento")
   status      String          @default("rascunho")
   desconto    Decimal         @default(0)
   total       Decimal         @default(0)

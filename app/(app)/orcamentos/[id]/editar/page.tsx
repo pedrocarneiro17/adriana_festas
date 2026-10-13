@@ -5,12 +5,20 @@ import OrcamentoForm from "../../orcamento-form";
 export default async function EditarOrcamentoPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const [orcamento, clientes, produtos] = await Promise.all([
-    prisma.orcamento.findUnique({ where: { id }, include: { itens: true } }),
+    prisma.orcamento.findUnique({
+      where: { id },
+      include: { itens: true, contrato: { include: { evento: true } } },
+    }),
     prisma.cliente.findMany({ orderBy: { nome: "asc" } }),
     prisma.produto.findMany({ where: { ativo: true }, orderBy: { nome: "asc" } }),
   ]);
 
   if (!orcamento) notFound();
+
+  // Com evento já criado, ele é a fonte da verdade (a data pode ter sido movida na agenda).
+  const evento = orcamento.contrato?.evento;
+  const dataEvento = evento ? evento.data : orcamento.dataEvento;
+  const localEvento = evento ? evento.local : orcamento.localEvento;
 
   return (
     <div className="flex flex-col gap-6">
@@ -37,6 +45,8 @@ export default async function EditarOrcamentoPage({ params }: { params: Promise<
           clienteId: orcamento.clienteId,
           desconto: orcamento.desconto.toString(),
           validadeAte: orcamento.validadeAte?.toISOString() ?? null,
+          dataEvento: dataEvento?.toISOString() ?? null,
+          localEvento: localEvento ?? null,
           observacoes: orcamento.observacoes,
           itens: orcamento.itens.map((i) => ({ produtoId: i.produtoId, quantidade: i.quantidade.toString() })),
         }}

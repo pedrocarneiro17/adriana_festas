@@ -18,6 +18,8 @@ export type OrcamentoFormInput = {
     documento?: string;
   };
   validadeAte?: string; // yyyy-mm-dd
+  dataEvento?: string; // yyyy-mm-dd
+  localEvento?: string;
   desconto: number;
   observacoes?: string;
   itens: ItemInput[];
@@ -75,6 +77,8 @@ export async function criarOrcamento(data: OrcamentoFormInput) {
       desconto: data.desconto,
       total,
       validadeAte: data.validadeAte ? new Date(`${data.validadeAte}T12:00:00.000Z`) : null,
+      dataEvento: data.dataEvento ? new Date(`${data.dataEvento}T12:00:00.000Z`) : null,
+      localEvento: data.localEvento?.trim() || null,
       observacoes: data.observacoes || null,
       itens: { create: itensComPreco },
     },
@@ -115,6 +119,8 @@ export async function atualizarOrcamentoRascunho(id: string, data: OrcamentoForm
         desconto: data.desconto,
         total,
         validadeAte: data.validadeAte ? new Date(`${data.validadeAte}T12:00:00.000Z`) : null,
+        dataEvento: data.dataEvento ? new Date(`${data.dataEvento}T12:00:00.000Z`) : null,
+        localEvento: data.localEvento?.trim() || null,
         observacoes: data.observacoes || null,
         itens: { create: itensComPreco },
       },
@@ -122,6 +128,15 @@ export async function atualizarOrcamentoRascunho(id: string, data: OrcamentoForm
 
     const evento = await tx.evento.findFirst({ where: { contrato: { orcamentoId: id } } });
     if (evento) {
+      // Evento já existe: data e local alterados aqui valem também pro evento/contrato.
+      await tx.evento.update({
+        where: { id: evento.id },
+        data: {
+          ...(data.dataEvento ? { data: new Date(`${data.dataEvento}T12:00:00.000Z`) } : {}),
+          ...(data.localEvento !== undefined ? { local: data.localEvento.trim() || null } : {}),
+        },
+      });
+      revalidatePath("/agenda");
       await tx.checklistMaterialItem.deleteMany({ where: { checklist: { eventoId: evento.id } } });
       if (materiaisAgregados.size > 0) {
         await tx.checklistMateriais.upsert({
@@ -176,6 +191,7 @@ export async function duplicarOrcamento(id: string) {
       status: "rascunho",
       desconto: original.desconto,
       total: original.total,
+      localEvento: original.localEvento,
       observacoes: original.observacoes,
       itens: {
         create: original.itens.map((i) => ({
