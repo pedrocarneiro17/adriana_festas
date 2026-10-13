@@ -24,12 +24,12 @@ import {
 const links = [
   { href: "/dashboard", label: "Painel", icon: LayoutDashboard },
   { href: "/clientes", label: "Clientes", icon: Users },
-  { href: "/produtos", label: "Produtos", icon: Package },
-  { href: "/materiais", label: "Materiais", icon: Layers },
   { href: "/orcamentos", label: "Orçamentos", icon: FileText },
   { href: "/eventos", label: "Eventos", icon: PartyPopper },
   { href: "/agenda", label: "Agenda", icon: CalendarDays },
   { href: "/financeiro", label: "Financeiro", icon: Wallet },
+  { href: "/produtos", label: "Produtos", icon: Package },
+  { href: "/materiais", label: "Materiais", icon: Layers },
 ];
 
 const COLLAPSE_KEY = "sidebar-collapsed";
