@@ -7,7 +7,6 @@ import { CurrencyInput } from "@/components/ui/currency-input";
 import { Combobox } from "@/components/ui/combobox";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Trash2 } from "lucide-react";
 import { formatBRL } from "@/lib/utils";
@@ -49,6 +48,8 @@ export default function OrcamentoForm({ clientes, produtos, orcamentoId, initial
       { produtoId: "", quantidade: "1" },
     ]
   );
+
+  const clienteItems = useMemo(() => clientes.map((c) => ({ id: c.id, label: c.nome })), [clientes]);
 
   const produtoItems = useMemo(
     () =>
@@ -164,18 +165,14 @@ export default function OrcamentoForm({ clientes, produtos, orcamentoId, initial
               />
             </div>
           ) : (
-            <Select value={clienteId} onValueChange={setClienteId} disabled={!!orcamentoId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecione um cliente" />
-              </SelectTrigger>
-              <SelectContent>
-                {clientes.map((c) => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.nome}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Combobox
+              items={clienteItems}
+              value={clienteId}
+              onChange={setClienteId}
+              disabled={!!orcamentoId}
+              placeholder="Digite para buscar o cliente..."
+              emptyText="Nenhum cliente encontrado"
+            />
           )}
         </CardContent>
       </Card>

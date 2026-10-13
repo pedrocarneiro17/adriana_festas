@@ -22,6 +22,7 @@ export function Combobox({
   onChange,
   placeholder,
   emptyText = "Nada encontrado",
+  disabled,
   className,
 }: {
   items: ComboboxItem[];
@@ -29,6 +30,7 @@ export function Combobox({
   onChange: (id: string) => void;
   placeholder?: string;
   emptyText?: string;
+  disabled?: boolean;
   className?: string;
 }) {
   const listId = useId();
@@ -109,7 +111,8 @@ export function Combobox({
         aria-expanded={open}
         aria-controls={listId}
         autoComplete="off"
-        className="flex h-9 w-full rounded-full border border-[var(--color-divider)] bg-[var(--color-surface)] pl-3.5 pr-9 py-1 text-base transition-colors placeholder:text-sand-500 focus-visible:outline-none focus-visible:border-[var(--color-accent)] md:text-sm"
+        disabled={disabled}
+        className="flex h-9 w-full disabled:cursor-not-allowed disabled:opacity-45 rounded-full border border-[var(--color-divider)] bg-[var(--color-surface)] pl-3.5 pr-9 py-1 text-base transition-colors placeholder:text-sand-500 focus-visible:outline-none focus-visible:border-[var(--color-accent)] md:text-sm"
       />
       <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-sand-500" />
 
