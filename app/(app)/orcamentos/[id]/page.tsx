@@ -87,7 +87,12 @@ export default async function OrcamentoDetalhePage({ params }: { params: Promise
             <TableBody>
               {orcamento.itens.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>{item.produto.nome}</TableCell>
+                  <TableCell className="max-w-sm">
+                    {item.produto.nome}
+                    {item.produto.descricao && (
+                      <p className="whitespace-pre-line text-xs text-sand-500">{item.produto.descricao}</p>
+                    )}
+                  </TableCell>
                   <TableCell>{item.quantidade.toString()}</TableCell>
                   <TableCell>{formatBRL(item.valorUnitarioCongelado.toString())}</TableCell>
                   <TableCell>{formatBRL(item.subtotal.toString())}</TableCell>

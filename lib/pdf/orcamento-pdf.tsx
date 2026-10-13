@@ -14,6 +14,7 @@ const styles = StyleSheet.create({
   headerRow: { flexDirection: "row", backgroundColor: "#f3f4f6", paddingVertical: 4, fontWeight: 700 },
   colProduto: { flex: 3 },
   colQtd: { flex: 1, textAlign: "right" },
+  descricao: { fontSize: 8.5, color: "#6b7280", marginTop: 2, lineHeight: 1.3 },
   totalRow: { flexDirection: "row", justifyContent: "flex-end", marginTop: 8 },
   totalLabel: { fontSize: 12, fontWeight: 700, marginRight: 8 },
   totalValue: { fontFamily: "Jost", fontWeight: 600, fontSize: 13, color: BRAND.wine },
@@ -30,7 +31,7 @@ type OrcamentoPdfProps = {
     total: unknown;
     observacoes: string | null;
     cliente: { nome: string; telefone: string | null; endereco: string | null };
-    itens: { produto: { nome: string }; quantidade: unknown }[];
+    itens: { produto: { nome: string; descricao: string | null }; quantidade: unknown }[];
   };
 };
 
@@ -69,7 +70,10 @@ export default function OrcamentoPdf({ orcamento }: OrcamentoPdfProps) {
           </View>
           {orcamento.itens.map((item, idx) => (
             <View style={styles.row} key={idx}>
-              <Text style={styles.colProduto}>{item.produto.nome}</Text>
+              <View style={styles.colProduto}>
+                <Text>{item.produto.nome}</Text>
+                {item.produto.descricao && <Text style={styles.descricao}>{item.produto.descricao}</Text>}
+              </View>
               <Text style={styles.colQtd}>{String(item.quantidade)}</Text>
             </View>
           ))}
