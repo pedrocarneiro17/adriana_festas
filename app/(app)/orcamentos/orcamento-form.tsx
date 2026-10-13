@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { CurrencyInput } from "@/components/ui/currency-input";
+import { Combobox } from "@/components/ui/combobox";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -14,7 +15,13 @@ import { criarOrcamento, atualizarOrcamentoRascunho } from "@/lib/actions/orcame
 import { verificarDataBloqueada } from "@/lib/actions/agenda";
 
 type Cliente = { id: string; nome: string };
-type Produto = { id: string; nome: string; valorUnitario: string };
+type Produto = {
+  id: string;
+  nome: string;
+  valorUnitario: string;
+  categoria: string | null;
+  descricao: string | null;
+};
 
 type Props = {
   clientes: Cliente[];
@@ -41,6 +48,18 @@ export default function OrcamentoForm({ clientes, produtos, orcamentoId, initial
     initial?.itens.map((i) => ({ produtoId: i.produtoId, quantidade: i.quantidade })) ?? [
       { produtoId: "", quantidade: "1" },
     ]
+  );
+
+  const produtoItems = useMemo(
+    () =>
+      produtos.map((p) => ({
+        id: p.id,
+        label: p.nome,
+        hint: formatBRL(p.valorUnitario),
+        detail: p.descricao,
+        searchText: [p.categoria, p.descricao].filter(Boolean).join(" "),
+      })),
+    [produtos]
   );
 
   const total = useMemo(() => {
@@ -179,18 +198,13 @@ export default function OrcamentoForm({ clientes, produtos, orcamentoId, initial
                 key={idx}
                 className="flex flex-col gap-2 rounded-2xl border border-[var(--color-divider)] p-2 sm:grid sm:grid-cols-[1fr_80px_110px_32px] sm:items-center sm:border-0 sm:p-0"
               >
-                <Select value={item.produtoId} onValueChange={(v) => updateItem(idx, "produtoId", v)}>
-                  <SelectTrigger className="min-w-0">
-                    <SelectValue placeholder="Produto" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {produtos.map((p) => (
-                      <SelectItem key={p.id} value={p.id}>
-                        {p.nome} ({formatBRL(p.valorUnitario)})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Combobox
+                  items={produtoItems}
+                  value={item.produtoId}
+                  onChange={(v) => updateItem(idx, "produtoId", v)}
+                  placeholder="Digite para buscar o produto..."
+                  emptyText="Nenhum produto encontrado"
+                />
                 <div className="flex items-center gap-2 sm:contents">
                   <Input
                     type="number"

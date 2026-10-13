@@ -26,7 +26,13 @@ export default async function EditarOrcamentoPage({ params }: { params: Promise<
       <OrcamentoForm
         orcamentoId={orcamento.id}
         clientes={clientes.map((c) => ({ id: c.id, nome: c.nome }))}
-        produtos={produtos.map((p) => ({ id: p.id, nome: p.nome, valorUnitario: p.valorUnitario.toString() }))}
+        produtos={produtos.map((p) => ({
+          id: p.id,
+          nome: p.nome,
+          valorUnitario: p.valorUnitario.toString(),
+          categoria: p.categoria,
+          descricao: p.descricao,
+        }))}
         initial={{
           clienteId: orcamento.clienteId,
           desconto: orcamento.desconto.toString(),

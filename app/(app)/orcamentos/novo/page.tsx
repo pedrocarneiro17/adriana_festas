@@ -15,7 +15,13 @@ export default async function NovoOrcamentoPage() {
       </div>
       <OrcamentoForm
         clientes={clientes.map((c) => ({ id: c.id, nome: c.nome }))}
-        produtos={produtos.map((p) => ({ id: p.id, nome: p.nome, valorUnitario: p.valorUnitario.toString() }))}
+        produtos={produtos.map((p) => ({
+          id: p.id,
+          nome: p.nome,
+          valorUnitario: p.valorUnitario.toString(),
+          categoria: p.categoria,
+          descricao: p.descricao,
+        }))}
       />
     </div>
   );
