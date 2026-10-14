@@ -97,6 +97,8 @@ model Orcamento {
   // (e, por consequência, o contrato) automaticamente ao aprovar.
   dataEvento  DateTime?       @map("data_evento")
   localEvento String?         @map("local_evento")
+  numeroConvidados Int?       @map("numero_convidados")
+  paletaCores String?         @map("paleta_cores")
   status      String          @default("rascunho")
   desconto    Decimal         @default(0)
   total       Decimal         @default(0)

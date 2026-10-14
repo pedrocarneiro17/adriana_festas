@@ -20,6 +20,8 @@ export type OrcamentoFormInput = {
   validadeAte?: string; // yyyy-mm-dd
   dataEvento?: string; // yyyy-mm-dd
   localEvento?: string;
+  numeroConvidados?: number;
+  paletaCores?: string;
   desconto: number;
   observacoes?: string;
   itens: ItemInput[];
@@ -79,6 +81,8 @@ export async function criarOrcamento(data: OrcamentoFormInput) {
       validadeAte: data.validadeAte ? new Date(`${data.validadeAte}T12:00:00.000Z`) : null,
       dataEvento: data.dataEvento ? new Date(`${data.dataEvento}T12:00:00.000Z`) : null,
       localEvento: data.localEvento?.trim() || null,
+      numeroConvidados: data.numeroConvidados || null,
+      paletaCores: data.paletaCores?.trim() || null,
       observacoes: data.observacoes || null,
       itens: { create: itensComPreco },
     },
@@ -121,6 +125,8 @@ export async function atualizarOrcamentoRascunho(id: string, data: OrcamentoForm
         validadeAte: data.validadeAte ? new Date(`${data.validadeAte}T12:00:00.000Z`) : null,
         dataEvento: data.dataEvento ? new Date(`${data.dataEvento}T12:00:00.000Z`) : null,
         localEvento: data.localEvento?.trim() || null,
+        numeroConvidados: data.numeroConvidados || null,
+        paletaCores: data.paletaCores?.trim() || null,
         observacoes: data.observacoes || null,
         itens: { create: itensComPreco },
       },

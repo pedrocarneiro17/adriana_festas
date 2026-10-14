@@ -51,6 +51,13 @@ export default async function OrcamentoDetalhePage({ params }: { params: Promise
               {localEvento ? ` · ${localEvento}` : ""}
             </p>
           )}
+          {(orcamento.numeroConvidados || orcamento.paletaCores) && (
+            <p className="text-sm text-sand-600">
+              {orcamento.numeroConvidados ? `${orcamento.numeroConvidados} convidados` : ""}
+              {orcamento.numeroConvidados && orcamento.paletaCores ? " · " : ""}
+              {orcamento.paletaCores ? `Paleta: ${orcamento.paletaCores}` : ""}
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <Badge variant={statusVariant[orcamento.status]}>{orcamento.status.replace("_", " ")}</Badge>

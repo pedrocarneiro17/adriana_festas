@@ -47,6 +47,8 @@ export default async function EditarOrcamentoPage({ params }: { params: Promise<
           validadeAte: orcamento.validadeAte?.toISOString() ?? null,
           dataEvento: dataEvento?.toISOString() ?? null,
           localEvento: localEvento ?? null,
+          numeroConvidados: orcamento.numeroConvidados,
+          paletaCores: orcamento.paletaCores,
           observacoes: orcamento.observacoes,
           itens: orcamento.itens.map((i) => ({ produtoId: i.produtoId, quantidade: i.quantidade.toString() })),
         }}

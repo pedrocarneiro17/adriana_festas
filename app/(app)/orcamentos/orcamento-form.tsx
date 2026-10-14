@@ -32,6 +32,8 @@ type Props = {
     validadeAte: string | null;
     dataEvento: string | null;
     localEvento: string | null;
+    numeroConvidados: number | null;
+    paletaCores: string | null;
     observacoes: string | null;
     itens: { produtoId: string; quantidade: string }[];
   };
@@ -45,6 +47,8 @@ export default function OrcamentoForm({ clientes, produtos, orcamentoId, initial
   const [validadeAte, setValidadeAte] = useState(initial?.validadeAte?.slice(0, 10) ?? "");
   const [dataEvento, setDataEvento] = useState(initial?.dataEvento?.slice(0, 10) ?? "");
   const [localEvento, setLocalEvento] = useState(initial?.localEvento ?? "");
+  const [numeroConvidados, setNumeroConvidados] = useState(initial?.numeroConvidados?.toString() ?? "");
+  const [paletaCores, setPaletaCores] = useState(initial?.paletaCores ?? "");
   const [desconto, setDesconto] = useState(Number(initial?.desconto ?? 0));
   const [observacoes, setObservacoes] = useState(initial?.observacoes ?? "");
   const [itens, setItens] = useState(
@@ -109,6 +113,8 @@ export default function OrcamentoForm({ clientes, produtos, orcamentoId, initial
       validadeAte: validadeAte || undefined,
       dataEvento: dataEvento || undefined,
       localEvento,
+      numeroConvidados: Number(numeroConvidados) > 0 ? Math.floor(Number(numeroConvidados)) : undefined,
+      paletaCores,
       desconto,
       observacoes,
       itens: itens
@@ -240,6 +246,25 @@ export default function OrcamentoForm({ clientes, produtos, orcamentoId, initial
               value={localEvento}
               onChange={(e) => setLocalEvento(e.target.value)}
               placeholder="Local / endereço onde será o evento"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label>Número de convidados</Label>
+            <Input
+              type="number"
+              min="1"
+              step="1"
+              value={numeroConvidados}
+              onChange={(e) => setNumeroConvidados(e.target.value)}
+              placeholder="Ex: 80"
+            />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label>Paleta de cores</Label>
+            <Input
+              value={paletaCores}
+              onChange={(e) => setPaletaCores(e.target.value)}
+              placeholder="Ex: dourado, branco e verde sálvia"
             />
           </div>
           <div className="flex flex-col gap-1.5">
