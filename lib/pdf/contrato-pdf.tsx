@@ -31,7 +31,12 @@ type ContratoPdfProps = {
     condicoesPagamento: string | null;
     somenteDecoracao: boolean;
     cliente: { nome: string; telefone: string | null; endereco: string | null; documento: string | null };
-    orcamento: { total: unknown; itens: { produto: { nome: string }; quantidade: unknown }[] };
+    orcamento: {
+      total: unknown;
+      numeroConvidados: number | null;
+      paletaCores: string | null;
+      itens: { produto: { nome: string }; quantidade: unknown }[];
+    };
     evento: { data: Date; horario: string | null; local: string | null } | null;
   };
   referencias?: { buffer: Buffer }[];
@@ -65,11 +70,15 @@ export default function ContratoPdf({ contrato, referencias = [] }: ContratoPdfP
         </Text>
 
         <Text style={styles.clausula}>CLÁUSULA 1ª – DO OBJETO DO CONTRATO</Text>
-        {contrato.evento && (
+        {(contrato.evento || contrato.orcamento.numeroConvidados || contrato.orcamento.paletaCores) && (
           <View style={styles.section}>
-            <Text>Data: {formatDate(contrato.evento.data)}</Text>
-            {contrato.evento.horario && <Text>Horário: {contrato.evento.horario}</Text>}
-            {contrato.evento.local && <Text>Local: {contrato.evento.local}</Text>}
+            {contrato.evento && <Text>Data: {formatDate(contrato.evento.data)}</Text>}
+            {contrato.evento?.horario && <Text>Horário: {contrato.evento.horario}</Text>}
+            {contrato.evento?.local && <Text>Local: {contrato.evento.local}</Text>}
+            {contrato.orcamento.numeroConvidados && (
+              <Text>Número de convidados: {contrato.orcamento.numeroConvidados}</Text>
+            )}
+            {contrato.orcamento.paletaCores && <Text>Paleta de cores: {contrato.orcamento.paletaCores}</Text>}
           </View>
         )}
 
