@@ -128,7 +128,7 @@ export default function ContratoPdf({ contrato, referencias = [] }: ContratoPdfP
 
         <View style={styles.avisoBox}>
           <Text style={styles.avisoTitle}>AVISO IMPORTANTE:</Text>
-          <Text>- Preencha a lista de fornecedores</Text>
+          <Text>- Preencha a lista de fornecedores.</Text>
           <Text>- Nos enviar uma foto para postagem do grande dia.</Text>
           <Text>*Os detalhes acima devem ser cumpridos no mínimo 8 dias de antecedência do evento.*</Text>
         </View>
