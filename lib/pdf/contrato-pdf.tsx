@@ -14,6 +14,7 @@ const styles = StyleSheet.create({
   headerRow: { flexDirection: "row", backgroundColor: "#f3f4f6", paddingVertical: 4, fontWeight: 700 },
   colProduto: { flex: 3 },
   colQtd: { flex: 1, textAlign: "right" },
+  descricao: { fontSize: 8.5, color: "#6b7280", marginTop: 2, lineHeight: 1.3 },
   avisoBox: { marginTop: 12, padding: 10, backgroundColor: "#f7f2f2", borderRadius: 4 },
   avisoTitle: { fontWeight: 700, marginBottom: 4 },
   signSection: { marginTop: 40, flexDirection: "row", justifyContent: "space-between" },
@@ -35,7 +36,7 @@ type ContratoPdfProps = {
       total: unknown;
       numeroConvidados: number | null;
       paletaCores: string | null;
-      itens: { produto: { nome: string }; quantidade: unknown }[];
+      itens: { produto: { nome: string; descricao: string | null }; quantidade: unknown }[];
     };
     evento: { data: Date; horario: string | null; local: string | null } | null;
   };
@@ -90,7 +91,10 @@ export default function ContratoPdf({ contrato, referencias = [] }: ContratoPdfP
           </View>
           {contrato.orcamento.itens.map((item, idx) => (
             <View style={styles.row} key={idx}>
-              <Text style={styles.colProduto}>{item.produto.nome}</Text>
+              <View style={styles.colProduto}>
+                <Text>{item.produto.nome}</Text>
+                {item.produto.descricao && <Text style={styles.descricao}>{item.produto.descricao}</Text>}
+              </View>
               <Text style={styles.colQtd}>{String(item.quantidade)}</Text>
             </View>
           ))}
@@ -124,7 +128,7 @@ export default function ContratoPdf({ contrato, referencias = [] }: ContratoPdfP
 
         <View style={styles.avisoBox}>
           <Text style={styles.avisoTitle}>AVISO IMPORTANTE:</Text>
-          <Text>- Fica a cargo da contratante criar um grupo no WhatsApp com todos os fornecedores envolvidos, para alinhar os detalhes e facilitar a comunicação.</Text>
+          <Text>- Preencha a lista de fornecedores</Text>
           <Text>- Nos enviar uma foto para postagem do grande dia.</Text>
           <Text>*Os detalhes acima devem ser cumpridos no mínimo 8 dias de antecedência do evento.*</Text>
         </View>
